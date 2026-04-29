@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { callSeagull } from "./client";
+import { callSeagull, UnsupportedWidgetError } from "./client";
 import { WidgetDataSchema, type WidgetData } from "../schemas/widget";
 
 const KpiEnvelopeSchema = z.object({
@@ -81,5 +81,5 @@ export async function getWidgetData(widgetId: string): Promise<WidgetData> {
     });
   }
 
-  throw new Error(`Unrecognized widget payload for id=${widgetId}`);
+  throw new UnsupportedWidgetError(widgetId);
 }

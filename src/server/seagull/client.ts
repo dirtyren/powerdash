@@ -12,6 +12,13 @@ export class SeagullError extends Error {
   }
 }
 
+export class UnsupportedWidgetError extends SeagullError {
+  constructor(widgetId: string, hint?: string) {
+    super(`Unrecognized widget payload for id=${widgetId}${hint ? `: ${hint}` : ""}`, 502);
+    this.name = "UnsupportedWidgetError";
+  }
+}
+
 export interface SeagullCallOptions extends ParseOptions {
   /** Path appended to SEAGULL_BASE_URL, e.g. "/dashboards/list.xml" */
   path: string;
@@ -32,7 +39,7 @@ export async function callSeagull(opts: SeagullCallOptions): Promise<unknown> {
   if (cookieHeader) headers["Cookie"] = cookieHeader;
   if (opts.contentType) headers["Content-Type"] = opts.contentType;
 
-  const response = await fetch(`${base}${opts.path}`, {
+  const response = await fetch(`${base.replace(/\/$/, "")}${opts.path}`, {
     method: opts.method ?? "GET",
     headers,
     ...(opts.body !== undefined ? { body: opts.body } : {}),

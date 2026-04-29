@@ -59,4 +59,13 @@ describe("getWidgetData", () => {
     expect(data.columns.map((c) => c.key)).toEqual(["host", "up"]);
     expect(data.rows).toHaveLength(2);
   });
+
+  it("throws UnsupportedWidgetError on unknown widget kind", async () => {
+    const xml = `<?xml version="1.0"?>
+    <response><widget kind="scatter"><whatever/></widget></response>`;
+    vi.stubGlobal("fetch", () => Promise.resolve(new Response(xml, { status: 200 })));
+    const { getWidgetData } = await import("@/server/seagull/widgets");
+    const { UnsupportedWidgetError } = await import("@/server/seagull/client");
+    await expect(getWidgetData("w-unknown")).rejects.toBeInstanceOf(UnsupportedWidgetError);
+  });
 });
