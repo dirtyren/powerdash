@@ -1,23 +1,26 @@
 @import "tailwindcss";
 
-:root {
-  --background: 222 47% 6%;
-  --foreground: 210 40% 98%;
-  --muted: 217 33% 17%;
-  --muted-foreground: 215 20% 65%;
-  --card: 222 47% 8%;
-  --card-foreground: 210 40% 98%;
-  --border: 217 33% 20%;
-  --primary: 210 100% 60%;
-  --primary-foreground: 222 47% 6%;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-background: hsl(222 47% 6%);
+  --color-foreground: hsl(210 40% 98%);
+  --color-muted: hsl(217 33% 17%);
+  --color-muted-foreground: hsl(215 20% 65%);
+  --color-card: hsl(222 47% 8%);
+  --color-card-foreground: hsl(210 40% 98%);
+  --color-border: hsl(217 33% 20%);
+  --color-primary: hsl(210 100% 60%);
+  --color-primary-foreground: hsl(222 47% 6%);
 }
 
-html, body {
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
+html,
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
   min-height: 100vh;
 }
 
 * {
-  border-color: hsl(var(--border));
+  border-color: var(--color-border);
 }
