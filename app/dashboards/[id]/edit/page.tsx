@@ -59,10 +59,13 @@ export default function DashboardEditPage({
     router.push(viewHref);
   };
 
-  const existingWidgetIds =
-    editWidgets !== null
-      ? new Set(editWidgets.map((w) => w.id))
-      : new Set<string>();
+  const existingWidgetIds = useMemo(
+    () =>
+      editWidgets !== null
+        ? new Set(editWidgets.map((w) => w.id))
+        : new Set<string>(),
+    [editWidgets],
+  );
 
   const handleAddWidget = (entry: WidgetCatalogEntry) => {
     if (editWidgets === null) return;
