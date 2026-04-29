@@ -3,7 +3,7 @@
 import { use } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
-import { DashboardGrid } from "@/components/DashboardGrid";
+import { DashboardCanvas } from "@/components/DashboardCanvas";
 import { useDashboard } from "@/hooks/useDashboard";
 import { Button } from "@/components/ui/button";
 export default function DashboardDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -27,7 +27,7 @@ export default function DashboardDetailPage({ params }: { params: Promise<{ id: 
               </Link>
             </div>
           </header>
-          <DashboardGrid widgets={data.widgets} />
+          <DashboardCanvas width={data.width} height={data.height} widgets={data.widgets} />
         </>
       )}
     </AppShell>
