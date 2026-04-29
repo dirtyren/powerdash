@@ -6,9 +6,11 @@ const dashboard: Dashboard = {
   id: "1",
   name: "Infrastructure Overview",
   owner: "opuser",
+  width: 1600,
+  height: 900,
   widgets: [
-    { id: "w-cpu-kpi", kind: "kpi", title: "CPU %", x: 0, y: 0, w: 3, h: 2 },
-    { id: "w-cpu-line", kind: "line", title: "CPU over time", x: 3, y: 0, w: 6, h: 4 },
+    { id: "w-cpu-kpi", kind: "kpi", title: "CPU %", x: 20, y: 20, w: 260, h: 160 },
+    { id: "w-cpu-line", kind: "line", title: "CPU over time", x: 300, y: 20, w: 720, h: 320 },
   ],
 };
 
@@ -42,7 +44,16 @@ describe("buildSaveDashboardBody", () => {
     }
   });
 
-  it("includes sensible defaults for acl, allmayview, timer, scale, width, height", () => {
+  it("emits dashboard canvas width/height (not hardcoded defaults)", () => {
+    const body = buildSaveDashboardBody(dashboard);
+    const jsonStr = new URLSearchParams(body).get("json");
+    if (!jsonStr) throw new Error("json field missing");
+    const parsed = JSON.parse(jsonStr) as Record<string, unknown>;
+    expect(parsed.width).toBe("1600");
+    expect(parsed.height).toBe("900");
+  });
+
+  it("includes sensible defaults for acl, allmayview, timer, scale", () => {
     const body = buildSaveDashboardBody(dashboard);
     const jsonStr = new URLSearchParams(body).get("json");
     if (!jsonStr) throw new Error("json field missing");
@@ -52,15 +63,13 @@ describe("buildSaveDashboardBody", () => {
     expect(parsed.timer).toBe("15000");
     expect(parsed.scale).toBe("1");
     expect(parsed.scalestretch).toBe("1");
-    expect(parsed.width).toBe("1920");
-    expect(parsed.height).toBe("1080");
   });
 
   it("escapes special characters safely through URLSearchParams", () => {
     const d: Dashboard = {
       ...dashboard,
       name: 'A & B <x> "quoted"',
-      widgets: [{ id: "w1", kind: "kpi", title: "5 > 3 & 2 < 4", x: 0, y: 0, w: 1, h: 1 }],
+      widgets: [{ id: "w1", kind: "kpi", title: "5 > 3 & 2 < 4", x: 20, y: 20, w: 260, h: 160 }],
     };
     const body = buildSaveDashboardBody(d);
     const jsonStr = new URLSearchParams(body).get("json");

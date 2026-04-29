@@ -26,13 +26,14 @@ describe("saveDashboard", () => {
       }
       // second call: getDashboard re-fetch
       const echoXml = `<?xml version="1.0"?>
-        <response><dashboard>
-          <id>1</id><name>Infra</name><owner>opuser</owner>
-          <widgets>
-            <widget><id>w-cpu-kpi</id><kind>kpi</kind><title>CPU %</title>
-              <x>0</x><y>0</y><w>3</w><h>2</h></widget>
-          </widgets>
-        </dashboard></response>`;
+  <response><dashboard>
+    <id>1</id><name>Infra</name><owner>opuser</owner>
+    <width>1920</width><height>1080</height>
+    <widgets>
+      <widget><id>w-cpu-kpi</id><kind>kpi</kind><title>CPU %</title>
+        <x>20</x><y>20</y><w>260</w><h>160</h></widget>
+    </widgets>
+  </dashboard></response>`;
       return Promise.resolve(new Response(echoXml, { status: 200 }));
     });
     vi.stubGlobal("fetch", fetchSpy);
@@ -42,7 +43,11 @@ describe("saveDashboard", () => {
       id: "1",
       name: "Infra",
       owner: "opuser",
-      widgets: [{ id: "w-cpu-kpi", kind: "kpi", title: "CPU %", x: 0, y: 0, w: 3, h: 2 }],
+      width: 1920,
+      height: 1080,
+      widgets: [
+        { id: "w-cpu-kpi", kind: "kpi", title: "CPU %", x: 20, y: 20, w: 260, h: 160 },
+      ],
     });
 
     expect(result.id).toBe("1");
@@ -56,7 +61,7 @@ describe("saveDashboard", () => {
     );
     const { saveDashboard } = await import("@/server/seagull/dashboards");
     const { SaveDashboardError } = await import("@/server/seagull/client");
-    const p = saveDashboard({ id: "1", name: "x", owner: "y", widgets: [] });
+    const p = saveDashboard({ id: "1", name: "x", owner: "y", width: 1920, height: 1080, widgets: [] });
     await expect(p).rejects.toBeInstanceOf(SaveDashboardError);
     await expect(p).rejects.toMatchObject({ code: -2 });
   });
@@ -66,7 +71,7 @@ describe("saveDashboard", () => {
     const { saveDashboard } = await import("@/server/seagull/dashboards");
     const { SeagullError } = await import("@/server/seagull/client");
     await expect(
-      saveDashboard({ id: "1", name: "x", owner: "y", widgets: [] }),
+      saveDashboard({ id: "1", name: "x", owner: "y", width: 1920, height: 1080, widgets: [] }),
     ).rejects.toBeInstanceOf(SeagullError);
   });
 });

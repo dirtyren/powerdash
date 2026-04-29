@@ -16,9 +16,10 @@ const SAVE_PATH = "/opmon/seagull/www/index.php/wsconnector/action/savedashboard
 
 const detailXml = `<?xml version="1.0"?>
   <response><dashboard><id>1</id><name>Infra</name><owner>opuser</owner>
+    <width>1920</width><height>1080</height>
     <widgets>
       <widget><id>w-cpu-kpi</id><kind>kpi</kind><title>CPU %</title>
-        <x>0</x><y>0</y><w>3</w><h>2</h></widget>
+        <x>20</x><y>20</y><w>260</w><h>160</h></widget>
     </widgets>
   </dashboard></response>`;
 
@@ -42,7 +43,7 @@ describe("PUT /api/dashboards/[id]", () => {
     const response = await PUT(
       makeRequest({
         widgets: [
-          { id: "w-cpu-kpi", kind: "kpi", title: "CPU %", x: 0, y: 0, w: 3, h: 2 },
+          { id: "w-cpu-kpi", kind: "kpi", title: "CPU %", x: 20, y: 20, w: 260, h: 160 },
         ],
       }),
       { params: Promise.resolve({ id: "1" }) },
@@ -74,7 +75,7 @@ describe("PUT /api/dashboards/[id]", () => {
     const { PUT } = await import("@app/api/dashboards/[id]/route");
     const response = await PUT(
       makeRequest({
-        widgets: [{ id: "w", kind: "kpi", title: "T", x: 0, y: 0, w: 1, h: 1 }],
+        widgets: [{ id: "w", kind: "kpi", title: "T", x: 10, y: 10, w: 100, h: 100 }],
       }),
       { params: Promise.resolve({ id: "1" }) },
     );
@@ -89,7 +90,7 @@ describe("PUT /api/dashboards/[id]", () => {
     const { PUT } = await import("@app/api/dashboards/[id]/route");
     const response = await PUT(
       makeRequest({
-        widgets: [{ id: "w", kind: "kpi", title: "T", x: 0, y: 0, w: 1, h: 1 }],
+        widgets: [{ id: "w", kind: "kpi", title: "T", x: 10, y: 10, w: 100, h: 100 }],
       }),
       { params: Promise.resolve({ id: "1" }) },
     );
