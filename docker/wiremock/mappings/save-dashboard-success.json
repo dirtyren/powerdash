@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/opmon/seagull/www/index.php/wsconnector/action/savedashboard",
+    "headers": {
+      "Content-Type": { "contains": "application/x-www-form-urlencoded" }
+    },
+    "bodyPatterns": [
+      { "matches": "^json=.*" }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": { "output": 1 }
+  }
+}
