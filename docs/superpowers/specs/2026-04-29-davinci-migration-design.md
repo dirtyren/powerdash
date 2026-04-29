@@ -128,6 +128,8 @@ Estimated effort: **~920 engineering hours** (~22 calendar weeks with 2 FE + 0.5
 
 Team shape: **2 FE + 0.5 BE + 0.25 design**, ~22 calendar weeks.
 
+> The 920 h estimate counts focused implementation work only. The 22-week calendar absorbs the remaining capacity (PR review, spikes, seagull/SOAP reverse-engineering, meetings, stakeholder demos, hardening) at a realistic ~38% utilization. If utilization is closer to 60%, compress to ~14 calendar weeks; below 30%, expect ~28.
+
 ---
 
 ## 5. Workspace structure
