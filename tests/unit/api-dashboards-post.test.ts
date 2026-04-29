@@ -10,13 +10,25 @@ describe("POST /api/dashboards", () => {
     vi.restoreAllMocks();
   });
 
-  it("422s on an invalid body", async () => {
-    const { POST } = await import("@app/api/dashboards/route");
-    const req = new Request("http://localhost/api/dashboards", {
+  function makeRequest(body: unknown): Request {
+    return new Request("http://localhost:3000/api/dashboards", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nope: true }),
+      body: JSON.stringify(body),
     });
+  }
+
+  const validDraft = {
+    name: "new",
+    owner: "opuser",
+    width: 1920,
+    height: 1080,
+    widgets: [],
+  };
+
+  it("422s on an invalid body", async () => {
+    const { POST } = await import("@app/api/dashboards/route");
+    const req = makeRequest({ nope: true });
     const res = await POST(req);
     expect(res.status).toBe(422);
   });
@@ -42,16 +54,12 @@ describe("POST /api/dashboards", () => {
     });
 
     const { POST } = await import("@app/api/dashboards/route");
-    const req = new Request("http://localhost/api/dashboards", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: "New",
-        owner: "opuser",
-        width: 1920,
-        height: 1080,
-        widgets: [],
-      }),
+    const req = makeRequest({
+      name: "New",
+      owner: "opuser",
+      width: 1920,
+      height: 1080,
+      widgets: [],
     });
     const res = await POST(req);
     expect(res.status).toBe(200);
@@ -64,18 +72,41 @@ describe("POST /api/dashboards", () => {
       Promise.resolve(new Response(JSON.stringify({ output: -2 }), { status: 200 })),
     );
     const { POST } = await import("@app/api/dashboards/route");
-    const req = new Request("http://localhost/api/dashboards", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: "dup",
-        owner: "opuser",
-        width: 1920,
-        height: 1080,
-        widgets: [],
-      }),
+    const req = makeRequest({
+      name: "dup",
+      owner: "opuser",
+      width: 1920,
+      height: 1080,
+      widgets: [],
     });
     const res = await POST(req);
     expect(res.status).toBe(409);
+  });
+
+  it("402s on license limit exceeded (output: -3)", async () => {
+    vi.stubGlobal("fetch", () =>
+      Promise.resolve(new Response(JSON.stringify({ output: -3 }), { status: 200 })),
+    );
+    const { POST } = await import("@app/api/dashboards/route");
+    const res = await POST(makeRequest(validDraft));
+    expect(res.status).toBe(402);
+  });
+
+  it("403s on permission denied (output: -4)", async () => {
+    vi.stubGlobal("fetch", () =>
+      Promise.resolve(new Response(JSON.stringify({ output: -4 }), { status: 200 })),
+    );
+    const { POST } = await import("@app/api/dashboards/route");
+    const res = await POST(makeRequest(validDraft));
+    expect(res.status).toBe(403);
+  });
+
+  it("502s on upstream error (SeagullError)", async () => {
+    vi.stubGlobal("fetch", () =>
+      Promise.resolve(new Response("boom", { status: 500 })),
+    );
+    const { POST } = await import("@app/api/dashboards/route");
+    const res = await POST(makeRequest(validDraft));
+    expect(res.status).toBe(502);
   });
 });

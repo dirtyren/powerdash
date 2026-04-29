@@ -3,17 +3,11 @@ import { z } from "zod";
 import { getDashboard, saveDashboard } from "@/server/seagull/dashboards";
 import { SeagullError, SaveDashboardError } from "@/server/seagull/client";
 import { WidgetRefSchema } from "@/server/schemas/widget";
+import { SAVE_ERROR_HTTP } from "@/server/seagull/error-mapping";
 
 const PutBodySchema = z.object({
   widgets: z.array(WidgetRefSchema),
 });
-
-const SAVE_ERROR_HTTP: Record<number, number> = {
-  [-1]: 500,
-  [-2]: 409,
-  [-3]: 402,
-  [-4]: 403,
-};
 
 export async function PUT(
   req: Request,
