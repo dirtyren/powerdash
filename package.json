@@ -22,11 +22,13 @@
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "fast-xml-parser": "^4.4.1",
     "lucide-react": "^1.14.0",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "zod": "^3.23"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
