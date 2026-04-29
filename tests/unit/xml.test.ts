@@ -7,13 +7,13 @@ describe("parseSeagullXml", () => {
     expect(parseSeagullXml(xml)).toEqual({ root: { a: "1" } });
   });
 
-  it("forces arrays for list-shaped paths", () => {
+  it("forces arrays even when there is only one element", () => {
     const xml = `<?xml version="1.0"?><root><items><item>a</item></items></root>`;
     const result = parseSeagullXml(xml, { arrayPaths: ["root.items.item"] });
     expect(result).toEqual({ root: { items: { item: ["a"] } } });
   });
 
-  it("forces arrays even when there is only one element", () => {
+  it("preserves array for multiple elements with isArray", () => {
     const xml = `<?xml version="1.0"?><root><items><item>a</item><item>b</item></items></root>`;
     const result = parseSeagullXml(xml, { arrayPaths: ["root.items.item"] });
     expect(result).toEqual({ root: { items: { item: ["a", "b"] } } });
