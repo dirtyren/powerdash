@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
 import { getWidgetData } from "@/server/seagull/widgets";
-import { SeagullError } from "@/server/seagull/client";
+import { SeagullError, UnsupportedWidgetError } from "@/server/seagull/client";
 
 export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
   try {
     const data = await getWidgetData(id);
-    return NextResponse.json(data, {
-      headers: { "Cache-Control": "no-store" },
-    });
+    return NextResponse.json(data, { headers: { "Cache-Control": "no-store" } });
   } catch (err) {
+    if (err instanceof UnsupportedWidgetError) {
+      return NextResponse.json(
+        { error: "unsupported_widget", message: err.message },
+        { status: 422 },
+      );
+    }
     if (err instanceof SeagullError) {
       return NextResponse.json(
         { error: "upstream", status: err.status, message: err.message },

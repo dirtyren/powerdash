@@ -45,6 +45,19 @@ jobs:
             -v "$PWD/docker/wiremock/__files:/home/wiremock/__files:ro" \
             wiremock/wiremock:3.9.1 --global-response-templating
 
+      - name: Wait for mock-api readiness
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/__admin > /dev/null; then
+              echo "mock-api ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "mock-api failed to start"
+          docker logs mock-api || true
+          exit 1
+
       - name: Playwright e2e
         env:
           SEAGULL_BASE_URL: http://localhost:8080

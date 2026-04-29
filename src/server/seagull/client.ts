@@ -14,7 +14,7 @@ export class SeagullError extends Error {
 
 export class UnsupportedWidgetError extends SeagullError {
   constructor(widgetId: string, hint?: string) {
-    super(`Unrecognized widget payload for id=${widgetId}${hint ? `: ${hint}` : ""}`, 502);
+    super(`Unrecognized widget payload for id=${widgetId}${hint ? `: ${hint}` : ""}`, 422);
     this.name = "UnsupportedWidgetError";
   }
 }
