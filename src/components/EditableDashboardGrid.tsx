@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import GridLayout, { type Layout, WidthProvider } from "react-grid-layout";
 import type { WidgetRef } from "@/server/schemas/widget";
 import { KpiTile } from "@/components/widgets/KpiTile";
@@ -18,6 +18,11 @@ function widgetsToLayout(widgets: WidgetRef[]): Layout[] {
     h: w.h,
     minW: 1,
     minH: 1,
+    // Ensure `moved` and `static` match the defaults set by cloneLayoutItem so
+    // that react-grid-layout's deepEqual check in onLayoutMaybeChanged does not
+    // report a spurious change on mount and fire onLayoutChange unnecessarily.
+    moved: false,
+    static: false,
   }));
 }
 
@@ -50,9 +55,18 @@ interface Props {
   onChange: (next: WidgetRef[]) => void;
 }
 
+function layoutKey(layout: Layout[]): string {
+  return JSON.stringify(
+    [...layout].sort((a, b) => a.i.localeCompare(b.i)).map((l) => [l.i, l.x, l.y, l.w, l.h]),
+  );
+}
+
 export function EditableDashboardGrid({ widgets, onChange }: Props) {
   const layout = useMemo(() => widgetsToLayout(widgets), [widgets]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  // Capture the initial layout key so that spurious onLayoutChange calls fired
+  // by react-grid-layout / WidthProvider on mount do not mark the form dirty.
+  const baseLayoutKeyRef = useRef<string | null>(null);
 
   return (
     <ResponsiveGrid
@@ -62,7 +76,20 @@ export function EditableDashboardGrid({ widgets, onChange }: Props) {
       rowHeight={80}
       margin={[16, 16]}
       draggableCancel=".widget-remove-button"
-      onLayoutChange={(next) => onChange(applyLayout(widgets, next))}
+      onLayoutChange={(next) => {
+        const key = layoutKey(next);
+        if (baseLayoutKeyRef.current === null) {
+          // First call — record the baseline and do NOT propagate.
+          baseLayoutKeyRef.current = key;
+          return;
+        }
+        if (key === baseLayoutKeyRef.current) {
+          // Spurious re-fire with unchanged positions (e.g. WidthProvider resize).
+          return;
+        }
+        baseLayoutKeyRef.current = key;
+        onChange(applyLayout(widgets, next));
+      }}
       isDraggable
       isResizable
     >
