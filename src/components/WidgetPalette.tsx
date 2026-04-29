@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import type { WidgetCatalogEntry } from "@/config/widget-catalog";
 
 interface Props {
