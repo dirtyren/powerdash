@@ -65,7 +65,7 @@ export default function NewDashboardPage() {
 
   const handleCancel = () => {
     if (draft.widgets.length === 0 || window.confirm("Discard this dashboard?")) {
-      router.push("/" as Route);
+      router.push("/");
     }
   };
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import type { z } from "zod";
 import { listDashboards, saveDashboard } from "@/server/seagull/dashboards";
 import { SeagullError, SaveDashboardError } from "@/server/seagull/client";
 import { CreateDashboardSchema } from "@/server/schemas/dashboard";

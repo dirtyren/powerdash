@@ -10,6 +10,7 @@ export default defineConfig({
     globals: true,
     unstubGlobals: true,
     restoreMocks: true,
+    setupFiles: ["./tests/setup.ts"],
     include: ["tests/unit/**/*.test.ts", "tests/unit/**/*.test.tsx"],
     coverage: {
       reporter: ["text", "lcov"],

@@ -29,8 +29,8 @@ describe("EditToolbar", () => {
         onTitleChange={onTitleChange}
       />,
     );
-    const input = screen.getByRole("textbox") as HTMLInputElement;
-    expect(input.value).toBe("Draft");
+    const input = screen.getByRole("textbox");
+    expect(input).toHaveValue("Draft");
     fireEvent.change(input, { target: { value: "Renamed" } });
     expect(onTitleChange).toHaveBeenCalledWith("Renamed");
   });
@@ -45,6 +45,6 @@ describe("EditToolbar", () => {
         onCancel={() => {}}
       />,
     );
-    expect((screen.getByRole("button", { name: /^Save/ }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByRole("button", { name: /^Save/ })).toBeDisabled();
   });
 });

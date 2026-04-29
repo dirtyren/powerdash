@@ -14,7 +14,7 @@ export default function HomePage() {
     <AppShell>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Dashboards</h1>
-        <Link href={"/dashboards/new" as Route}>
+        <Link href={"/dashboards/new"}>
           <Button>New Dashboard</Button>
         </Link>
       </div>

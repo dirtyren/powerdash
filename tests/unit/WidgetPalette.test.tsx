@@ -1,4 +1,3 @@
-import React from "react";
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { WidgetPalette } from "@/components/WidgetPalette";
@@ -24,8 +23,8 @@ describe("WidgetPalette", () => {
         onAdd={() => {}}
       />,
     );
-    expect((screen.getByRole("button", { name: /Alpha/ }) as HTMLButtonElement).disabled).toBe(true);
-    expect((screen.getByRole("button", { name: /Bravo/ }) as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.getByRole("button", { name: /Alpha/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /Bravo/ })).toBeEnabled();
   });
 
   it("fires onAdd with the clicked entry", () => {
