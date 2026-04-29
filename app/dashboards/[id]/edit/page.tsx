@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { EditableDashboardCanvas } from "@/components/EditableDashboardCanvas";
 import { EditToolbar } from "@/components/EditToolbar";
+import { WidgetPalette } from "@/components/WidgetPalette";
+import { WIDGET_CATALOG, type WidgetCatalogEntry } from "@/config/widget-catalog";
+import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useSaveDashboard } from "@/hooks/useSaveDashboard";
 import type { WidgetRef } from "@/server/schemas/widget";
@@ -27,6 +30,7 @@ export default function DashboardEditPage({
   const save = useSaveDashboard(id);
 
   const [editWidgets, setEditWidgets] = useState<WidgetRef[] | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState<boolean>(true);
 
   useEffect(() => {
     if (data && editWidgets === null) {
@@ -55,6 +59,25 @@ export default function DashboardEditPage({
     router.push(viewHref);
   };
 
+  const existingWidgetIds =
+    editWidgets !== null
+      ? new Set(editWidgets.map((w) => w.id))
+      : new Set<string>();
+
+  const handleAddWidget = (entry: WidgetCatalogEntry) => {
+    if (editWidgets === null) return;
+    const next: WidgetRef = {
+      id: entry.id,
+      kind: entry.kind,
+      title: entry.title,
+      x: 20,
+      y: 20,
+      w: entry.defaultW,
+      h: entry.defaultH,
+    };
+    setEditWidgets([...editWidgets, next]);
+  };
+
   return (
     <AppShell>
       {isLoading && <p className="text-muted-foreground">Loading dashboard…</p>}
@@ -77,12 +100,34 @@ export default function DashboardEditPage({
             onSave={handleSave}
             onCancel={handleCancel}
           />
-          <EditableDashboardCanvas
-            width={data.width}
-            height={data.height}
-            widgets={editWidgets}
-            onChange={setEditWidgets}
-          />
+          <div className="flex gap-4">
+            <div className="min-w-0 flex-1">
+              <EditableDashboardCanvas
+                width={data.width}
+                height={data.height}
+                widgets={editWidgets}
+                onChange={setEditWidgets}
+              />
+            </div>
+            <div className="flex items-start">
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={paletteOpen ? "Collapse widget palette" : "Expand widget palette"}
+                onClick={() => setPaletteOpen((v) => !v)}
+                className="mt-1 h-8 w-6 px-0"
+              >
+                {paletteOpen ? "›" : "‹"}
+              </Button>
+              {paletteOpen && (
+                <WidgetPalette
+                  catalog={WIDGET_CATALOG}
+                  existingWidgetIds={existingWidgetIds}
+                  onAdd={handleAddWidget}
+                />
+              )}
+            </div>
+          </div>
         </>
       )}
     </AppShell>
