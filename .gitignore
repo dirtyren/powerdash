@@ -22,6 +22,8 @@ pnpm-debug.log*
 # testing
 coverage
 .playwright
+playwright-report
+test-results
 
 # misc
 .DS_Store
