@@ -21,20 +21,21 @@ Estimated effort: **~920 engineering hours** (~22 calendar weeks with 2 FE + 0.5
 
 ### 2.1 Translating Flex components to React
 
-| Flex construct | React replacement | Notes |
-|---|---|---|
-| `mx:VBox` / `mx:HBox` / `mx:Panel` | Tailwind flex/grid + shadcn `Card` | 1:1 container mapping |
-| `mx:DataGrid` / `AdvancedDataGrid` | **TanStack Table** | Virtualization via `@tanstack/react-virtual` |
-| `mx:LineChart` / `ColumnChart` / `PieChart` | **ECharts** (heavy) + **Tremor** (KPI tiles) | See §2.3 |
-| Gauges, odometers | ECharts gauge series | |
-| `mx:Tree`, `mx:Accordion` | shadcn `Accordion` + custom tree | |
-| `[Bindable]` + `BindingUtils` | **TanStack Query** (server state) + **Zustand** (UI state) | |
-| Flex modules (`viewerModule`, `scatmapModule`) | Out of scope | Remain on Flash |
-| Drag/drop dashboard authoring | `dnd-kit` | |
-| Flex timers for polling | TanStack Query `refetchInterval` / SSE | |
-| `ResourceManager` locales (`en_US`, `pt_BR`, `es_ES`) | `next-intl` | Port existing `.properties` files |
+| Flex construct                                        | React replacement                                          | Notes                                        |
+| ----------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------- |
+| `mx:VBox` / `mx:HBox` / `mx:Panel`                    | Tailwind flex/grid + shadcn `Card`                         | 1:1 container mapping                        |
+| `mx:DataGrid` / `AdvancedDataGrid`                    | **TanStack Table**                                         | Virtualization via `@tanstack/react-virtual` |
+| `mx:LineChart` / `ColumnChart` / `PieChart`           | **ECharts** (heavy) + **Tremor** (KPI tiles)               | See §2.3                                     |
+| Gauges, odometers                                     | ECharts gauge series                                       |                                              |
+| `mx:Tree`, `mx:Accordion`                             | shadcn `Accordion` + custom tree                           |                                              |
+| `[Bindable]` + `BindingUtils`                         | **TanStack Query** (server state) + **Zustand** (UI state) |                                              |
+| Flex modules (`viewerModule`, `scatmapModule`)        | Out of scope                                               | Remain on Flash                              |
+| Drag/drop dashboard authoring                         | `dnd-kit`                                                  |                                              |
+| Flex timers for polling                               | TanStack Query `refetchInterval` / SSE                     |                                              |
+| `ResourceManager` locales (`en_US`, `pt_BR`, `es_ES`) | `next-intl`                                                | Port existing `.properties` files            |
 
 **Main challenges**
+
 - **`[Bindable]` mindset.** Flex two-way binding encourages mutable view-model objects. React's unidirectional data flow + TanStack Query is a rewrite of thinking, not a translation. Budget discovery time.
 - **Event dispatch / custom events.** Flex `EventDispatcher` maps to React props callbacks or a small event bus (`mitt`) for the few cross-tree cases.
 - **Module loading.** Flex `ModuleLoader` dynamically loaded sub-apps. Next.js dynamic imports (`next/dynamic`) cover the same need for the rare case we keep it.
@@ -47,6 +48,7 @@ Estimated effort: **~920 engineering hours** (~22 calendar weeks with 2 FE + 0.5
 - **Observability.** Each route handler emits an OpenTelemetry span so latency regressions from adding the proxy hop are visible.
 
 **Roadblocks to anticipate**
+
 - Undocumented XML shapes (nullable elements, inconsistent casing, arrays-vs-single-element quirks). Mitigation: capture real responses into wiremock fixtures early (P0).
 - Long-running seagull endpoints. Mitigation: Route Handler streaming + client-side `suspense` boundaries; escalate to SSE for anything > 2 s.
 - CSRF/session edge cases. Mitigation: seagull session bridge prototype in P1 week 1.
@@ -54,17 +56,20 @@ Estimated effort: **~920 engineering hours** (~22 calendar weeks with 2 FE + 0.5
 ### 2.3 Charting library recommendation
 
 **Primary: [Apache ECharts](https://echarts.apache.org/) via `echarts-for-react`.**
+
 - Covers every Flash chart type Davinci uses (line, area, bar, pie, gauge, radar, scatter, heatmap, tree, sankey).
 - Canvas + SVG renderers, strong performance on 10k+ points.
 - Mature time-series interactivity (zoom, brush, tooltip sync) — parity with Grafana panels.
 - Apache 2.0 licensed.
 
 **Complement: [Tremor](https://tremor.so/) for KPI tiles, small cards, progress bars.**
+
 - Tailwind-native, looks cohesive with shadcn.
 
 **Escape hatch: D3 v7** only where ECharts cannot express the visual (e.g., OpMon-specific CMDB topology renders — but those are in the out-of-scope `topology-html5` app today).
 
 **Rejected:**
+
 - **Chart.js** — fine for simple charts, but weaker on time-series interactivity at dashboard scale.
 - **Recharts** — pleasant API, but performance cliffs above a few thousand points.
 - **amCharts 5** — capable, but licensed.
@@ -114,17 +119,17 @@ Estimated effort: **~920 engineering hours** (~22 calendar weeks with 2 FE + 0.5
 
 ## 4. Engineering estimation
 
-| Track | Hours | Notes |
-|---|---|---|
-| Infra (Next.js 15 + TS + Tailwind + shadcn + ESLint/Prettier + Vitest + CI) | 40 | Foundation, one sprint |
-| API layer (route handlers, XML parser, typed clients, Zod schemas, error model) | 120 | Grows with endpoint count |
-| UI kit & theming (shadcn, design tokens, layout primitives, dark mode) | 80 | |
-| Dashboard widgets (~10 types × ~32 h avg) | 320 | Line, KPI, table, gauge, column, pie, heatmap, status-grid, event list, SLA matrix |
-| Dashboard authoring (dnd-kit, persistence, share URLs, duplicate) | 140 | |
-| Auth/session bridge with seagull | 60 | Higher risk if CSRF quirks |
-| Testing (Vitest unit, Playwright e2e) + observability (Sentry, OTel, RUM) | 120 | |
-| Docker dev stack + wiremock fixtures | 40 | See §6 |
-| **Total** | **~920 h** | |
+| Track                                                                           | Hours      | Notes                                                                              |
+| ------------------------------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------- |
+| Infra (Next.js 15 + TS + Tailwind + shadcn + ESLint/Prettier + Vitest + CI)     | 40         | Foundation, one sprint                                                             |
+| API layer (route handlers, XML parser, typed clients, Zod schemas, error model) | 120        | Grows with endpoint count                                                          |
+| UI kit & theming (shadcn, design tokens, layout primitives, dark mode)          | 80         |                                                                                    |
+| Dashboard widgets (~10 types × ~32 h avg)                                       | 320        | Line, KPI, table, gauge, column, pie, heatmap, status-grid, event list, SLA matrix |
+| Dashboard authoring (dnd-kit, persistence, share URLs, duplicate)               | 140        |                                                                                    |
+| Auth/session bridge with seagull                                                | 60         | Higher risk if CSRF quirks                                                         |
+| Testing (Vitest unit, Playwright e2e) + observability (Sentry, OTel, RUM)       | 120        |                                                                                    |
+| Docker dev stack + wiremock fixtures                                            | 40         | See §6                                                                             |
+| **Total**                                                                       | **~920 h** |                                                                                    |
 
 Team shape: **2 FE + 0.5 BE + 0.25 design**, ~22 calendar weeks.
 
@@ -203,6 +208,7 @@ CMD ["node", "server.js"]
 ```
 
 Notes:
+
 - Targets Next.js `output: "standalone"` — set in `next.config.ts`.
 - `dev` stage is used by Compose; `runtime` stage is for the optional "pre-baked demo" image pushed to an internal registry.
 
@@ -275,31 +281,32 @@ volumes:
 
 ## 7. Risks and mitigations
 
-| # | Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|---|
-| 1 | Undocumented SOAP/XML edge cases break the adapter layer | High | Medium | Capture real responses into wiremock fixtures in P0; Zod parse at boundary fails loudly |
-| 2 | Seagull session/CSRF bridge harder than expected | Medium | High | Prototype in P1 week 1 before any UI work |
-| 3 | Scope creep into viewer/scatmap/opmap/cmdbmap | High | High | Out-of-scope list in this spec; feature requests routed to Phase 2 planning |
-| 4 | SVN → git transition friction for team | Low | Low | Standalone new git repo; legacy SVN frozen for reference |
-| 5 | Perf regression from proxy hop (XML → JSON) | Medium | Medium | OTel spans on every Route Handler; p95 budget enforced in CI |
-| 6 | "Grafana" quality bar interpreted differently by stakeholders | Medium | Medium | Build a P1 demo early; anchor discussion on real pixels, not adjectives |
-| 7 | i18n string drift vs Flex `.properties` | Medium | Low | Automated diff between Flex locales and `next-intl` catalogs in CI |
+| #   | Risk                                                          | Likelihood | Impact | Mitigation                                                                              |
+| --- | ------------------------------------------------------------- | ---------- | ------ | --------------------------------------------------------------------------------------- |
+| 1   | Undocumented SOAP/XML edge cases break the adapter layer      | High       | Medium | Capture real responses into wiremock fixtures in P0; Zod parse at boundary fails loudly |
+| 2   | Seagull session/CSRF bridge harder than expected              | Medium     | High   | Prototype in P1 week 1 before any UI work                                               |
+| 3   | Scope creep into viewer/scatmap/opmap/cmdbmap                 | High       | High   | Out-of-scope list in this spec; feature requests routed to Phase 2 planning             |
+| 4   | SVN → git transition friction for team                        | Low        | Low    | Standalone new git repo; legacy SVN frozen for reference                                |
+| 5   | Perf regression from proxy hop (XML → JSON)                   | Medium     | Medium | OTel spans on every Route Handler; p95 budget enforced in CI                            |
+| 6   | "Grafana" quality bar interpreted differently by stakeholders | Medium     | Medium | Build a P1 demo early; anchor discussion on real pixels, not adjectives                 |
+| 7   | i18n string drift vs Flex `.properties`                       | Medium     | Low    | Automated diff between Flex locales and `next-intl` catalogs in CI                      |
 
 ---
 
 ## 8. Build vs Buy — Davinci custom dashboard vs Grafana
 
-| Axis | Build (this plan) | Buy (Grafana) |
-|---|---|---|
-| Fits OpMon's CMDB data model | ✅ Native | ⚠️ Requires custom datasource plugin over seagull |
-| Dashboard authoring UX inside OpMon | ✅ Seamless | ❌ Lives in Grafana UI, separate auth/permissions |
-| Time-series panels (CPU, latency, etc.) | ✅ ECharts | ✅ Built-in and best-in-class |
-| Alerting / incident views tied to CMDB items | ✅ | ⚠️ Needs bridging |
-| Time to first value | ~P1 (6 wk) | ~4 wk to a limited Grafana instance, +many weeks for the datasource plugin |
-| Ongoing maintenance | OpServices owns every line | Tracking upstream Grafana + plugin API breaks |
-| License | Proprietary | AGPL / Enterprise tiers |
+| Axis                                         | Build (this plan)          | Buy (Grafana)                                                              |
+| -------------------------------------------- | -------------------------- | -------------------------------------------------------------------------- |
+| Fits OpMon's CMDB data model                 | ✅ Native                  | ⚠️ Requires custom datasource plugin over seagull                          |
+| Dashboard authoring UX inside OpMon          | ✅ Seamless                | ❌ Lives in Grafana UI, separate auth/permissions                          |
+| Time-series panels (CPU, latency, etc.)      | ✅ ECharts                 | ✅ Built-in and best-in-class                                              |
+| Alerting / incident views tied to CMDB items | ✅                         | ⚠️ Needs bridging                                                          |
+| Time to first value                          | ~P1 (6 wk)                 | ~4 wk to a limited Grafana instance, +many weeks for the datasource plugin |
+| Ongoing maintenance                          | OpServices owns every line | Tracking upstream Grafana + plugin API breaks                              |
+| License                                      | Proprietary                | AGPL / Enterprise tiers                                                    |
 
 **Recommendation: hybrid build.**
+
 - **Build** the Davinci dashboard shell and authoring UX — it is OpMon's product surface and must stay integrated with CMDB and permissions.
 - **Embed Grafana panels** (via iframe or `grafana-react`) for pure time-series use cases where customers already operate a Grafana. This lets OpMon leverage Grafana's panel library without inheriting its dashboard/authentication model.
 

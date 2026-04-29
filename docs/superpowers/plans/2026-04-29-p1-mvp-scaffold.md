@@ -108,6 +108,7 @@ One-responsibility-per-file: server-side adapters live in `src/server/seagull/`,
 ## Task 1: Scaffold Next.js 15 + TypeScript strict
 
 **Files:**
+
 - Create: `package.json`, `tsconfig.json`, `next.config.ts`, `app/layout.tsx`, `app/page.tsx`, `app/globals.css`, `public/.gitkeep`
 
 - [ ] **Step 1: Initialize pnpm and install Next.js 15**
@@ -120,6 +121,7 @@ pnpm init
 pnpm add next@^15.0.0 react@^19.0.0 react-dom@^19.0.0
 pnpm add -D typescript@^5.6.0 @types/node@^22 @types/react@^19 @types/react-dom@^19
 ```
+
 Expected: `package.json`, `pnpm-lock.yaml`, `node_modules/` created.
 
 - [ ] **Step 2: Write `tsconfig.json`**
@@ -173,6 +175,7 @@ export default config;
 - [ ] **Step 4: Add scripts to `package.json`**
 
 Edit `package.json` `"scripts"`:
+
 ```json
 {
   "scripts": {
@@ -199,11 +202,7 @@ export const viewport: Viewport = {
   themeColor: "#0b1020",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>{children}</body>
@@ -215,6 +214,7 @@ export default function RootLayout({
 - [ ] **Step 6: Create placeholder `app/page.tsx` and `app/globals.css`**
 
 `app/page.tsx`:
+
 ```tsx
 export default function HomePage() {
   return <main className="p-8">OpMon Davinci — scaffolded.</main>;
@@ -222,13 +222,21 @@ export default function HomePage() {
 ```
 
 `app/globals.css`:
+
 ```css
 html,
 body {
   padding: 0;
   margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
 }
 ```
 
@@ -249,6 +257,7 @@ git commit -m "feat: scaffold Next.js 15 + TypeScript strict"
 ## Task 2: Tailwind CSS v4 + shadcn/ui
 
 **Files:**
+
 - Create: `tailwind.config.ts`, `postcss.config.mjs`, `components.json`, `src/lib/utils.ts`, `src/components/ui/button.tsx`, `src/components/ui/card.tsx`
 - Modify: `app/globals.css`
 
@@ -277,10 +286,7 @@ export default {
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: [
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
-  ],
+  content: ["./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   darkMode: "class",
   theme: {
     extend: {
@@ -320,7 +326,8 @@ export default config;
   --primary-foreground: 222 47% 6%;
 }
 
-html, body {
+html,
+body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
   min-height: 100vh;
@@ -390,17 +397,16 @@ const buttonVariants = cva(
       },
     },
     defaultVariants: { variant: "default", size: "default" },
-  }
+  },
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {}
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => (
     <button ref={ref} className={cn(buttonVariants({ variant, size }), className)} {...props} />
-  )
+  ),
 );
 Button.displayName = "Button";
 ```
@@ -415,31 +421,35 @@ export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("rounded-lg border border-border bg-card text-card-foreground shadow-sm", className)}
+      className={cn(
+        "border-border bg-card text-card-foreground rounded-lg border shadow-sm",
+        className,
+      )}
       {...props}
     />
-  )
+  ),
 );
 Card.displayName = "Card";
 
 export const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div ref={ref} className={cn("flex flex-col space-y-1.5 p-6", className)} {...props} />
-  )
+  ),
 );
 CardHeader.displayName = "CardHeader";
 
-export const CardTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, ...props }, ref) => (
-    <h3 ref={ref} className={cn("text-sm font-medium text-muted-foreground", className)} {...props} />
-  )
-);
+export const CardTitle = React.forwardRef<
+  HTMLHeadingElement,
+  React.HTMLAttributes<HTMLHeadingElement>
+>(({ className, ...props }, ref) => (
+  <h3 ref={ref} className={cn("text-muted-foreground text-sm font-medium", className)} {...props} />
+));
 CardTitle.displayName = "CardTitle";
 
 export const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
-  )
+  ),
 );
 CardContent.displayName = "CardContent";
 ```
@@ -459,6 +469,7 @@ git commit -m "feat: wire Tailwind v4 and shadcn/ui primitives"
 ## Task 3: ESLint + Prettier + Vitest
 
 **Files:**
+
 - Create: `eslint.config.mjs`, `.prettierrc.json`, `.prettierignore`, `vitest.config.ts`, `tests/unit/smoke.test.ts`
 - Modify: `package.json` (scripts)
 
@@ -544,6 +555,7 @@ export default defineConfig({
 - [ ] **Step 6: Write the failing smoke test**
 
 `tests/unit/smoke.test.ts`:
+
 ```ts
 import { describe, it, expect } from "vitest";
 import { cn } from "@/lib/utils";
@@ -562,6 +574,7 @@ describe("cn", () => {
 - [ ] **Step 7: Add scripts**
 
 Edit `package.json`:
+
 ```json
 {
   "scripts": {
@@ -596,6 +609,7 @@ git commit -m "feat: add ESLint, Prettier, Vitest with smoke test"
 ## Task 4: Wire Docker Compose dev stack
 
 **Files:**
+
 - Create: `docker/wiremock/mappings/.gitkeep`, `docker/wiremock/__files/.gitkeep`, `docker/postgres/seed.sql`, `.dockerignore`, `.env.example`
 - Existing: `docker/Dockerfile`, `docker/docker-compose.yml`
 
@@ -652,6 +666,7 @@ Run: `docker compose -f docker/docker-compose.yml up --build -d`
 Expected: three containers running.
 
 Verify:
+
 ```bash
 docker compose -f docker/docker-compose.yml ps
 curl -sSf http://localhost:3000 > /dev/null && echo "web ok"
@@ -677,6 +692,7 @@ git commit -m "feat: dev docker stack (web + wiremock + postgres) with seed"
 ## Task 5: XML parser wrapper (`src/server/seagull/xml.ts`)
 
 **Files:**
+
 - Create: `src/server/seagull/xml.ts`, `tests/unit/xml.test.ts`
 
 - [ ] **Step 1: Install parser**
@@ -688,6 +704,7 @@ pnpm add fast-xml-parser@^4.4.1 zod@^3.23
 - [ ] **Step 2: Write the failing test**
 
 `tests/unit/xml.test.ts`:
+
 ```ts
 import { describe, it, expect } from "vitest";
 import { parseSeagullXml } from "@/server/seagull/xml";
@@ -769,6 +786,7 @@ git commit -m "feat: seagull XML parser wrapper with array-path coercion"
 ## Task 6: Zod schemas (`src/server/schemas/`)
 
 **Files:**
+
 - Create: `src/server/schemas/dashboard.ts`, `src/server/schemas/widget.ts`
 
 - [ ] **Step 1: Write `src/server/schemas/dashboard.ts`**
@@ -864,6 +882,7 @@ git commit -m "feat: zod schemas for dashboard and widget contracts"
 ## Task 7: Seagull client + session forwarding
 
 **Files:**
+
 - Create: `src/server/seagull/session.ts`, `src/server/seagull/client.ts`, `src/server/seagull/dashboards.ts`, `src/server/seagull/widgets.ts`, `tests/unit/dashboards.test.ts`, `tests/unit/widgets.test.ts`
 - Modify: `.env.example` (already has `SEAGULL_BASE_URL`)
 
@@ -945,6 +964,7 @@ export async function callSeagull(opts: SeagullCallOptions): Promise<unknown> {
 - [ ] **Step 3: Write the failing test for `listDashboards`**
 
 `tests/unit/dashboards.test.ts`:
+
 ```ts
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
@@ -1063,6 +1083,7 @@ Expected: all 3 tests PASS.
 - [ ] **Step 7: Write the failing test for widgets**
 
 `tests/unit/widgets.test.ts`:
+
 ```ts
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
@@ -1138,10 +1159,7 @@ Expected: FAIL — module not found.
 ```ts
 import { z } from "zod";
 import { callSeagull } from "./client";
-import {
-  WidgetDataSchema,
-  type WidgetData,
-} from "../schemas/widget";
+import { WidgetDataSchema, type WidgetData } from "../schemas/widget";
 
 const KpiEnvelopeSchema = z.object({
   response: z.object({
@@ -1161,9 +1179,7 @@ const LineEnvelopeSchema = z.object({
       series: z.array(
         z.object({
           name: z.string(),
-          point: z.array(
-            z.object({ t: z.string(), v: z.coerce.number() }),
-          ),
+          point: z.array(z.object({ t: z.string(), v: z.coerce.number() })),
         }),
       ),
     }),
@@ -1250,6 +1266,7 @@ git commit -m "feat: seagull client + typed adapters for dashboards and widget d
 ## Task 8: Route handlers (BFF endpoints)
 
 **Files:**
+
 - Create: `app/api/dashboards/route.ts`, `app/api/dashboards/[id]/route.ts`, `app/api/widgets/[id]/data/route.ts`
 
 - [ ] **Step 1: Write `app/api/dashboards/route.ts`**
@@ -1287,10 +1304,7 @@ import { NextResponse } from "next/server";
 import { getDashboard } from "@/server/seagull/dashboards";
 import { SeagullError } from "@/server/seagull/client";
 
-export async function GET(
-  _req: Request,
-  ctx: { params: Promise<{ id: string }> },
-) {
+export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
   try {
     const data = await getDashboard(id);
@@ -1322,10 +1336,7 @@ import { NextResponse } from "next/server";
 import { getWidgetData } from "@/server/seagull/widgets";
 import { SeagullError } from "@/server/seagull/client";
 
-export async function GET(
-  _req: Request,
-  ctx: { params: Promise<{ id: string }> },
-) {
+export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id } = await ctx.params;
   try {
     const data = await getWidgetData(id);
@@ -1364,6 +1375,7 @@ git commit -m "feat: api route handlers for dashboards and widget data"
 ## Task 9: WireMock fixtures
 
 **Files:**
+
 - Create (5 mapping files + 5 xml files under `docker/wiremock/`)
 
 - [ ] **Step 1: Create `docker/wiremock/__files/list-dashboards.xml`**
@@ -1454,6 +1466,7 @@ git commit -m "feat: api route handlers for dashboards and widget data"
 - [ ] **Step 5: Create widget data fixtures**
 
 `docker/wiremock/__files/widget-1-data.xml` (KPI):
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <response>
@@ -1466,6 +1479,7 @@ git commit -m "feat: api route handlers for dashboards and widget data"
 ```
 
 `docker/wiremock/mappings/widget-1-data.json`:
+
 ```json
 {
   "request": { "method": "GET", "urlPath": "/widgets/w-cpu-kpi/data.xml" },
@@ -1478,6 +1492,7 @@ git commit -m "feat: api route handlers for dashboards and widget data"
 ```
 
 `docker/wiremock/__files/widget-2-data.xml` (line):
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <response>
@@ -1503,6 +1518,7 @@ git commit -m "feat: api route handlers for dashboards and widget data"
 ```
 
 `docker/wiremock/mappings/widget-2-data.json`:
+
 ```json
 {
   "request": { "method": "GET", "urlPath": "/widgets/w-cpu-line/data.xml" },
@@ -1515,6 +1531,7 @@ git commit -m "feat: api route handlers for dashboards and widget data"
 ```
 
 `docker/wiremock/__files/widget-3-data.xml` (table):
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <response>
@@ -1530,6 +1547,7 @@ git commit -m "feat: api route handlers for dashboards and widget data"
 ```
 
 `docker/wiremock/mappings/widget-3-data.json`:
+
 ```json
 {
   "request": { "method": "GET", "urlPath": "/widgets/w-hosts-table/data.xml" },
@@ -1551,6 +1569,7 @@ curl -s http://localhost:8080/widgets/w-cpu-kpi/data.xml | head
 curl -s http://localhost:8080/widgets/w-cpu-line/data.xml | head
 curl -s http://localhost:8080/widgets/w-hosts-table/data.xml | head
 ```
+
 Expected: each returns valid XML.
 
 - [ ] **Step 7: Commit**
@@ -1565,6 +1584,7 @@ git commit -m "feat: wiremock fixtures for 1 dashboard + 3 widgets"
 ## Task 10: End-to-end route handler integration test
 
 **Files:**
+
 - Create: `tests/unit/api-routes.test.ts`
 
 This verifies the route handlers compose the client + schemas correctly without booting the full Next server.
@@ -1572,6 +1592,7 @@ This verifies the route handlers compose the client + schemas correctly without 
 - [ ] **Step 1: Write the failing test**
 
 `tests/unit/api-routes.test.ts`:
+
 ```ts
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
@@ -1590,7 +1611,10 @@ describe("GET /api/dashboards", () => {
       <response><dashboards>
         <dashboard><id>1</id><name>A</name><owner>u</owner></dashboard>
       </dashboards></response>`;
-    vi.stubGlobal("fetch", vi.fn(async () => new Response(xml, { status: 200 })));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(xml, { status: 200 })),
+    );
 
     const { GET } = await import("@app/api/dashboards/route");
     const response = await GET();
@@ -1600,7 +1624,10 @@ describe("GET /api/dashboards", () => {
   });
 
   it("returns 502 when seagull fails", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => new Response("x", { status: 500 })));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("x", { status: 500 })),
+    );
     const { GET } = await import("@app/api/dashboards/route");
     const response = await GET();
     expect(response.status).toBe(502);
@@ -1625,6 +1652,7 @@ git commit -m "test: end-to-end integration test for /api/dashboards route"
 ## Task 11: TanStack Query + Zustand providers
 
 **Files:**
+
 - Create: `app/providers.tsx`, `src/stores/ui.ts`, `src/hooks/useDashboards.ts`, `src/hooks/useDashboard.ts`, `src/hooks/useWidgetData.ts`
 - Modify: `app/layout.tsx`
 
@@ -1681,11 +1709,7 @@ export const viewport: Viewport = {
   themeColor: "#0b1020",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
@@ -1770,10 +1794,9 @@ import { useQuery } from "@tanstack/react-query";
 import type { WidgetData } from "@/server/schemas/widget";
 
 async function fetchWidgetData(widgetId: string): Promise<WidgetData> {
-  const r = await fetch(
-    `/api/widgets/${encodeURIComponent(widgetId)}/data`,
-    { credentials: "include" },
-  );
+  const r = await fetch(`/api/widgets/${encodeURIComponent(widgetId)}/data`, {
+    credentials: "include",
+  });
   if (!r.ok) throw new Error(`widget ${widgetId} data failed: ${r.status}`);
   return r.json() as Promise<WidgetData>;
 }
@@ -1804,6 +1827,7 @@ git commit -m "feat: query client, zustand ui store, and data hooks"
 ## Task 12: AppShell + home page (dashboard list)
 
 **Files:**
+
 - Create: `src/components/AppShell.tsx`
 - Modify: `app/page.tsx`
 
@@ -1822,20 +1846,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen">
       <aside
         className={cn(
-          "border-r border-border bg-card transition-all",
+          "border-border bg-card border-r transition-all",
           sidebarOpen ? "w-64" : "w-14",
         )}
       >
         <button
           onClick={toggle}
-          className="h-12 w-full border-b border-border text-sm hover:bg-muted"
+          className="border-border hover:bg-muted h-12 w-full border-b text-sm"
           aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
         >
           {sidebarOpen ? "‹ Davinci" : "≡"}
         </button>
-        <nav className="p-4 text-sm text-muted-foreground">
-          {sidebarOpen ? "Dashboards" : null}
-        </nav>
+        <nav className="text-muted-foreground p-4 text-sm">{sidebarOpen ? "Dashboards" : null}</nav>
       </aside>
       <main className="flex-1 p-6">{children}</main>
     </div>
@@ -1867,7 +1889,7 @@ export default function HomePage() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {data.map((d) => (
             <Link key={d.id} href={`/dashboards/${d.id}`} className="block">
-              <Card className="transition-colors hover:border-primary">
+              <Card className="hover:border-primary transition-colors">
                 <CardHeader>
                   <CardTitle>{d.owner}</CardTitle>
                 </CardHeader>
@@ -1890,6 +1912,7 @@ export default function HomePage() {
 docker compose -f docker/docker-compose.yml up -d
 pnpm dev
 ```
+
 Open `http://localhost:3000`.
 Expected: sidebar + "Dashboards" heading + 2 cards ("Infrastructure Overview", "Network Core") served from wiremock.
 
@@ -1907,6 +1930,7 @@ git commit -m "feat: app shell + dashboard list page wired to /api/dashboards"
 ## Task 13: Widget components — KPI tile
 
 **Files:**
+
 - Create: `src/components/widgets/KpiTile.tsx`
 
 - [ ] **Step 1: Install Tremor**
@@ -1933,12 +1957,14 @@ export function KpiTile({ widgetId, title }: { widgetId: string; title: string }
       </CardHeader>
       <CardContent>
         {isLoading && <div className="text-muted-foreground">…</div>}
-        {error && <div className="text-red-400 text-sm">error</div>}
+        {error && <div className="text-sm text-red-400">error</div>}
         {data && data.kind === "kpi" && (
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-semibold">
               {data.value.toFixed(1)}
-              {data.unit && <span className="ml-1 text-base text-muted-foreground">{data.unit}</span>}
+              {data.unit && (
+                <span className="text-muted-foreground ml-1 text-base">{data.unit}</span>
+              )}
             </span>
             {typeof data.delta === "number" && (
               <span className={data.delta < 0 ? "text-green-400" : "text-red-400"}>
@@ -1971,6 +1997,7 @@ git commit -m "feat: KPI tile widget"
 ## Task 14: Widget components — Line chart (ECharts)
 
 **Files:**
+
 - Create: `src/components/widgets/LineChart.tsx`
 
 - [ ] **Step 1: Install ECharts**
@@ -2029,7 +2056,7 @@ export function LineChart({ widgetId, title }: { widgetId: string; title: string
       </CardHeader>
       <CardContent className="h-72">
         {isLoading && <div className="text-muted-foreground">…</div>}
-        {error && <div className="text-red-400 text-sm">error</div>}
+        {error && <div className="text-sm text-red-400">error</div>}
         {option && <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />}
       </CardContent>
     </Card>
@@ -2054,6 +2081,7 @@ git commit -m "feat: line chart widget using ECharts (client-only)"
 ## Task 15: Widget components — Data table
 
 **Files:**
+
 - Create: `src/components/widgets/DataTable.tsx`
 
 - [ ] **Step 1: Install TanStack Table**
@@ -2067,12 +2095,7 @@ pnpm add @tanstack/react-table@^8
 ```tsx
 "use client";
 
-import {
-  type ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useWidgetData } from "@/hooks/useWidgetData";
@@ -2106,12 +2129,12 @@ export function DataTable({ widgetId, title }: { widgetId: string; title: string
       </CardHeader>
       <CardContent>
         {isLoading && <div className="text-muted-foreground">…</div>}
-        {error && <div className="text-red-400 text-sm">error</div>}
+        {error && <div className="text-sm text-red-400">error</div>}
         {data && data.kind === "table" && (
           <table className="w-full text-sm">
             <thead>
               {table.getHeaderGroups().map((hg) => (
-                <tr key={hg.id} className="border-b border-border text-left text-muted-foreground">
+                <tr key={hg.id} className="border-border text-muted-foreground border-b text-left">
                   {hg.headers.map((h) => (
                     <th key={h.id} className="px-2 py-2 font-medium">
                       {flexRender(h.column.columnDef.header, h.getContext())}
@@ -2122,7 +2145,7 @@ export function DataTable({ widgetId, title }: { widgetId: string; title: string
             </thead>
             <tbody>
               {table.getRowModel().rows.map((row) => (
-                <tr key={row.id} className="border-b border-border/50">
+                <tr key={row.id} className="border-border/50 border-b">
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-2 py-2">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -2156,6 +2179,7 @@ git commit -m "feat: table widget using TanStack Table"
 ## Task 16: Dashboard detail page + widget dispatcher
 
 **Files:**
+
 - Create: `src/components/DashboardGrid.tsx`, `app/dashboards/[id]/page.tsx`
 
 - [ ] **Step 1: Write `src/components/DashboardGrid.tsx`**
@@ -2218,11 +2242,7 @@ import { AppShell } from "@/components/AppShell";
 import { DashboardGrid } from "@/components/DashboardGrid";
 import { useDashboard } from "@/hooks/useDashboard";
 
-export default function DashboardDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function DashboardDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { data, isLoading, error } = useDashboard(id);
 
@@ -2236,7 +2256,7 @@ export default function DashboardDetailPage({
         <>
           <header className="mb-6 flex items-baseline justify-between">
             <h1 className="text-2xl font-semibold">{data.name}</h1>
-            <span className="text-sm text-muted-foreground">owner: {data.owner}</span>
+            <span className="text-muted-foreground text-sm">owner: {data.owner}</span>
           </header>
           <DashboardGrid widgets={data.widgets} />
         </>
@@ -2252,6 +2272,7 @@ export default function DashboardDetailPage({
 docker compose -f docker/docker-compose.yml up -d
 pnpm dev
 ```
+
 - Open `http://localhost:3000`.
 - Click "Infrastructure Overview".
 - Expected: dashboard page renders KPI tile (`42.3%`), line chart with two series (cpu, mem), and a 3-row host table. Widgets reload every 15 s.
@@ -2270,6 +2291,7 @@ git commit -m "feat: dashboard detail page with kind-dispatched widget grid"
 ## Task 17: Playwright smoke test
 
 **Files:**
+
 - Create: `playwright.config.ts`, `tests/e2e/dashboard-smoke.spec.ts`
 - Modify: `package.json` (script)
 
@@ -2314,9 +2336,7 @@ test("lists dashboards and opens one with all three widget kinds", async ({ page
   await expect(page.getByText("Infrastructure Overview")).toBeVisible();
 
   await page.getByText("Infrastructure Overview").click();
-  await expect(
-    page.getByRole("heading", { name: "Infrastructure Overview" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Infrastructure Overview" })).toBeVisible();
 
   // KPI
   await expect(page.getByText(/42\.3/)).toBeVisible();
@@ -2345,6 +2365,7 @@ Pre-reqs: docker compose is up (so wiremock is available).
 docker compose -f docker/docker-compose.yml up -d mock-api
 pnpm e2e
 ```
+
 Expected: 1 passed.
 
 - [ ] **Step 6: Commit**
@@ -2359,6 +2380,7 @@ git commit -m "test(e2e): playwright smoke test for list + detail flow"
 ## Task 18: CI workflow (GitHub Actions)
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 - [ ] **Step 1: Write `.github/workflows/ci.yml`**
@@ -2438,13 +2460,14 @@ git commit -m "ci: github actions workflow (typecheck, lint, test, build, e2e)"
 ## Task 19: README and environment docs
 
 **Files:**
+
 - Modify: `README.md`
 
 - [ ] **Step 1: Extend `README.md` with dev workflow**
 
 Append to `README.md`:
-```markdown
 
+````markdown
 ## Local development
 
 ### Prerequisites
@@ -2459,14 +2482,16 @@ Append to `README.md`:
 cp .env.example .env.local
 pnpm install
 ```
+````
 
 ### Run everything in Docker
 
 ```bash
 docker compose -f docker/docker-compose.yml up --build
 ```
+
 - App: http://localhost:3000
-- Mock API (WireMock admin): http://localhost:8080/__admin
+- Mock API (WireMock admin): http://localhost:8080/\_\_admin
 - Postgres: localhost:5432 (opmon / opmon)
 
 ### Run the Next app on the host, mock-api + postgres in Docker
@@ -2487,14 +2512,15 @@ pnpm typecheck && pnpm lint && pnpm format:check
 ## Pointing at a real seagull backend
 
 Set `SEAGULL_BASE_URL` to the PHP host (e.g. `https://opmon.example.com`) and make sure your browser has a valid seagull session cookie (log into OpMon in the same browser). The session cookie is forwarded server-side by the Route Handlers.
-```
+
+````
 
 - [ ] **Step 2: Commit**
 
 ```bash
 git add README.md
 git commit -m "docs: local development workflow and backend switching"
-```
+````
 
 ---
 
@@ -2515,6 +2541,7 @@ docker compose -f docker/docker-compose.yml up -d mock-api
 pnpm e2e
 docker compose -f docker/docker-compose.yml down
 ```
+
 Expected: all pass cleanly from a fresh clone.
 
 - [ ] **Step 2: Manually verify the demo**
@@ -2522,6 +2549,7 @@ Expected: all pass cleanly from a fresh clone.
 ```bash
 docker compose -f docker/docker-compose.yml up --build
 ```
+
 Open http://localhost:3000 → click "Infrastructure Overview" → confirm KPI tile shows `42.3%`, line chart shows two series, table shows 3 hosts (`db-01`, `db-02`, `web-01`).
 
 - [ ] **Step 3: Announce P1 MVP done**
