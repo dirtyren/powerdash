@@ -1,12 +1,9 @@
 "use client";
 
-import "react-grid-layout/css/styles.css";
-import "react-resizable/css/styles.css";
-
 import { useEffect, useMemo, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
-import { EditableDashboardGrid } from "@/components/EditableDashboardGrid";
+import { EditableDashboardCanvas } from "@/components/EditableDashboardCanvas";
 import { EditToolbar } from "@/components/EditToolbar";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useSaveDashboard } from "@/hooks/useSaveDashboard";
@@ -80,7 +77,9 @@ export default function DashboardEditPage({
             onSave={handleSave}
             onCancel={handleCancel}
           />
-          <EditableDashboardGrid
+          <EditableDashboardCanvas
+            width={data.width}
+            height={data.height}
             widgets={editWidgets}
             onChange={setEditWidgets}
           />
