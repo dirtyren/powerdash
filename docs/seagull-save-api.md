@@ -159,3 +159,18 @@ prevent server-side deserialization errors on fields the HTML client cannot popu
 - PDF `docs/legacy/Documentacao API Integracao OpMon Dashboards.pdf` — covers **only** the
   external data (customhandler) integration API; does **not** document the dashboard save
   endpoint at all.
+
+## Create-new (no id) body
+
+The P2.2 create-new flow POSTs the same form-encoded envelope but omits the
+`id` key entirely. On success, `response.output` is the newly assigned id.
+This shape is inferred from the Flex client (`flex/src/.../DashboardSavePanel`)
+and **has not been empirically validated against a real OpMon instance**.
+Must be validated before staging promotion — see the TODO in
+`src/server/seagull/dashboards.ts`.
+
+Failure modes (same as save-existing):
+- `output: -1` — generic rejection (500)
+- `output: -2` — duplicate name (409)
+- `output: -3` — license limit exceeded (402)
+- `output: -4` — permission denied (403)
