@@ -20,6 +20,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tanstack/react-query": "^5",
+    "@tanstack/react-query-devtools": "^5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "fast-xml-parser": "^4.4.1",
@@ -28,7 +30,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.5.0",
-    "zod": "^3.23"
+    "zod": "^3.23",
+    "zustand": "^5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
