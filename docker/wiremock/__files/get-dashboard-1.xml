@@ -4,24 +4,26 @@
     <id>1</id>
     <name>Infrastructure Overview</name>
     <owner>opuser</owner>
+    <width>1920</width>
+    <height>1080</height>
     <widgets>
       <widget>
         <id>w-cpu-kpi</id>
         <kind>kpi</kind>
         <title>CPU %</title>
-        <x>0</x><y>0</y><w>3</w><h>2</h>
+        <x>20</x><y>20</y><w>260</w><h>160</h>
       </widget>
       <widget>
         <id>w-cpu-line</id>
         <kind>line</kind>
         <title>CPU over time</title>
-        <x>3</x><y>0</y><w>6</w><h>4</h>
+        <x>300</x><y>20</y><w>720</w><h>320</h>
       </widget>
       <widget>
         <id>w-hosts-table</id>
         <kind>table</kind>
         <title>Hosts</title>
-        <x>0</x><y>2</y><w>9</w><h>4</h>
+        <x>20</x><y>360</y><w>1000</w><h>320</h>
       </widget>
     </widgets>
   </dashboard>
