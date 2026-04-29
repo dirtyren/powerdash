@@ -9,6 +9,8 @@ export const DashboardSummarySchema = z.object({
 export type DashboardSummary = z.infer<typeof DashboardSummarySchema>;
 
 export const DashboardSchema = DashboardSummarySchema.extend({
+  width: z.coerce.number().int().positive().catch(1920),
+  height: z.coerce.number().int().positive().catch(1080),
   widgets: z.array(WidgetRefSchema),
 });
 export type Dashboard = z.infer<typeof DashboardSchema>;

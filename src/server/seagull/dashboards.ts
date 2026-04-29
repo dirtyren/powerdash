@@ -28,6 +28,8 @@ export async function listDashboards(): Promise<DashboardSummary[]> {
 const DetailEnvelopeSchema = z.object({
   response: z.object({
     dashboard: DashboardSummarySchema.extend({
+      width: z.coerce.number().int().positive().catch(1920),
+      height: z.coerce.number().int().positive().catch(1080),
       widgets: z.object({ widget: z.array(WidgetRefSchema) }),
     }),
   }),
