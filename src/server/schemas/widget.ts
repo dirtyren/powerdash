@@ -7,10 +7,10 @@ export const WidgetRefSchema = z.object({
   id: z.string().min(1),
   kind: WidgetKindSchema,
   title: z.string().min(1),
-  x: z.number().int().nonnegative(),
-  y: z.number().int().nonnegative(),
-  w: z.number().int().positive(),
-  h: z.number().int().positive(),
+  x: z.coerce.number().int().nonnegative(),
+  y: z.coerce.number().int().nonnegative(),
+  w: z.coerce.number().int().positive(),
+  h: z.coerce.number().int().positive(),
 });
 export type WidgetRef = z.infer<typeof WidgetRefSchema>;
 
