@@ -14,3 +14,6 @@ export const DashboardSchema = DashboardSummarySchema.extend({
   widgets: z.array(WidgetRefSchema),
 });
 export type Dashboard = z.infer<typeof DashboardSchema>;
+
+export const CreateDashboardSchema = DashboardSchema.omit({ id: true });
+export type CreateDashboard = z.infer<typeof CreateDashboardSchema>;
