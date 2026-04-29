@@ -8,13 +8,30 @@ interface Props {
   isSaving: boolean;
   onSave: () => void;
   onCancel: () => void;
+  onTitleChange?: (next: string) => void;
 }
 
-export function EditToolbar({ title, isDirty, isSaving, onSave, onCancel }: Props) {
+export function EditToolbar({
+  title,
+  isDirty,
+  isSaving,
+  onSave,
+  onCancel,
+  onTitleChange,
+}: Props) {
   return (
     <div className="mb-4 flex items-center justify-between border-b border-border pb-4">
       <div className="flex items-baseline gap-3">
-        <h1 className="text-2xl font-semibold">{title}</h1>
+        {onTitleChange ? (
+          <input
+            aria-label="Dashboard name"
+            value={title}
+            onChange={(e) => onTitleChange(e.target.value)}
+            className="border-b border-transparent bg-transparent text-2xl font-semibold outline-none focus:border-border"
+          />
+        ) : (
+          <h1 className="text-2xl font-semibold">{title}</h1>
+        )}
         <span className="text-sm text-muted-foreground">
           {isDirty ? "• unsaved changes" : "no changes"}
         </span>
