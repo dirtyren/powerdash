@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </button>
         <nav className="text-muted-foreground p-4 text-sm">{sidebarOpen ? "Dashboards" : null}</nav>
       </aside>
-      <main className="flex-1 p-6">{children}</main>
+      <main className="min-w-0 flex-1 p-6">{children}</main>
     </div>
   );
 }
