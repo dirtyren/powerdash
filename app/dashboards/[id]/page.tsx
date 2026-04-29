@@ -6,8 +6,6 @@ import { AppShell } from "@/components/AppShell";
 import { DashboardGrid } from "@/components/DashboardGrid";
 import { useDashboard } from "@/hooks/useDashboard";
 import { Button } from "@/components/ui/button";
-import type { Route } from "next";
-
 export default function DashboardDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { data, isLoading, error } = useDashboard(id);
@@ -22,7 +20,7 @@ export default function DashboardDetailPage({ params }: { params: Promise<{ id: 
             <h1 className="text-2xl font-semibold">{data.name}</h1>
             <div className="flex items-center gap-4">
               <span className="text-muted-foreground text-sm">owner: {data.owner}</span>
-              <Link href={`/dashboards/${id}/edit` as Route}>
+              <Link href={`/dashboards/${id}/edit`}>
                 <Button variant="outline" size="sm">
                   Edit
                 </Button>

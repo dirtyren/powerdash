@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import type { Route } from "next";
 import { AppShell } from "@/components/AppShell";
 import { useDashboards } from "@/hooks/useDashboards";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -17,7 +16,7 @@ export default function HomePage() {
       {data && (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {data.map((d) => (
-            <Link key={d.id} href={`/dashboards/${d.id}` as Route} className="block">
+            <Link key={d.id} href={`/dashboards/${d.id}`} className="block">
               <Card className="hover:border-primary transition-colors">
                 <CardHeader>
                   <CardTitle>{d.owner}</CardTitle>
