@@ -1,0 +1,29 @@
+# dependencies
+node_modules
+.pnpm-store
+
+# build output
+.next
+out
+dist
+build
+
+# env
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# testing
+coverage
+.playwright
+
+# misc
+.DS_Store
+.idea
+.vscode
+*.swp

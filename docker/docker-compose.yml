@@ -1,0 +1,58 @@
+name: dashboard-html
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: dev
+    container_name: dashboard-html-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - SEAGULL_BASE_URL=http://mock-api:8080
+      - DATABASE_URL=postgres://opmon:opmon@postgres:5432/opmon
+    volumes:
+      - ..:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      mock-api:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mock-api:
+    image: wiremock/wiremock:3.9.1
+    container_name: dashboard-html-mock-api
+    ports:
+      - "8080:8080"
+    command: ["--global-response-templating", "--verbose"]
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings:ro
+      - ./wiremock/__files:/home/wiremock/__files:ro
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: dashboard-html-postgres
+    environment:
+      - POSTGRES_USER=opmon
+      - POSTGRES_PASSWORD=opmon
+      - POSTGRES_DB=opmon
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opmon -d opmon"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
