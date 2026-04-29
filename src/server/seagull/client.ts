@@ -110,3 +110,23 @@ export async function callSeagullJson(opts: SeagullJsonCallOptions): Promise<unk
     );
   }
 }
+
+/**
+ * Thrown when seagull returns a business error from the savedashboard endpoint.
+ * Maps the numeric output codes to an Error subclass so route handlers can
+ * return the right HTTP status.
+ *
+ *   -1 generic save error     -> HTTP 500 in the handler
+ *   -2 duplicate dashboard    -> HTTP 409
+ *   -3 license limit exceeded -> HTTP 402
+ *   -4 no permission          -> HTTP 403
+ */
+export class SaveDashboardError extends Error {
+  constructor(
+    public readonly code: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "SaveDashboardError";
+  }
+}

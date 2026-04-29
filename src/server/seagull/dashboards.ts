@@ -1,11 +1,12 @@
 import { z } from "zod";
-import { callSeagull } from "./client";
+import { callSeagull, callSeagullJson, SaveDashboardError } from "./client";
 import {
   DashboardSummarySchema,
   type Dashboard,
   type DashboardSummary,
 } from "../schemas/dashboard";
 import { WidgetRefSchema } from "../schemas/widget";
+import { buildSaveDashboardBody } from "./save-payload";
 
 const ListEnvelopeSchema = z.object({
   response: z.object({
@@ -40,4 +41,33 @@ export async function getDashboard(id: string): Promise<Dashboard> {
   const parsed = DetailEnvelopeSchema.parse(raw);
   const { widgets, ...rest } = parsed.response.dashboard;
   return { ...rest, widgets: widgets.widget };
+}
+
+const SAVE_PATH = "/opmon/seagull/www/index.php/wsconnector/action/savedashboard";
+
+const SaveResponseSchema = z.object({
+  output: z.coerce.number().int(),
+});
+
+const SAVE_ERROR_MESSAGES: Record<number, string> = {
+  [-1]: "Seagull rejected the save (generic error).",
+  [-2]: "A dashboard with this name already exists.",
+  [-3]: "License limit exceeded; cannot save another dashboard.",
+  [-4]: "You do not have permission to save this dashboard.",
+};
+
+export async function saveDashboard(dashboard: Dashboard): Promise<Dashboard> {
+  const body = buildSaveDashboardBody(dashboard);
+  const raw = await callSeagullJson({ path: SAVE_PATH, body });
+  const parsed = SaveResponseSchema.parse(raw);
+
+  if (parsed.output <= 0) {
+    throw new SaveDashboardError(
+      parsed.output,
+      SAVE_ERROR_MESSAGES[parsed.output] ?? `Seagull save error (output=${parsed.output})`,
+    );
+  }
+
+  // Success — re-fetch because the save endpoint does not echo the dashboard.
+  return getDashboard(String(parsed.output));
 }
