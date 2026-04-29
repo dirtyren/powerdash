@@ -21,9 +21,7 @@ export default function DashboardDetailPage({ params }: { params: Promise<{ id: 
             <div className="flex items-center gap-4">
               <span className="text-muted-foreground text-sm">owner: {data.owner}</span>
               <Link href={`/dashboards/${id}/edit`}>
-                <Button variant="outline" size="sm">
-                  Edit
-                </Button>
+                <Button size="sm">Edit</Button>
               </Link>
             </div>
           </header>
