@@ -74,4 +74,41 @@ describe("saveDashboard", () => {
       saveDashboard({ id: "1", name: "x", owner: "y", width: 1920, height: 1080, widgets: [] }),
     ).rejects.toBeInstanceOf(SeagullError);
   });
+
+  it("accepts a CreateDashboard (no id), POSTs form body, and re-fetches with the returned id", async () => {
+    const fetchSpy = vi.fn((url: string | URL | Request) => {
+      const u = url instanceof Request ? url.url : url.toString();
+      if (u.endsWith(SAVE_PATH)) {
+        return Promise.resolve(new Response(JSON.stringify({ output: 42 }), { status: 200 }));
+      }
+      // re-GET with returned id
+      expect(u).toContain("/dashboards/42.xml");
+      const echoXml = `<?xml version="1.0"?>
+  <response><dashboard>
+    <id>42</id><name>New</name><owner>opuser</owner>
+    <width>1920</width><height>1080</height>
+    <widgets><widget>
+      <id>w-cpu-kpi</id><kind>kpi</kind><title>CPU %</title>
+      <x>20</x><y>20</y><w>260</w><h>160</h>
+    </widget></widgets>
+  </dashboard></response>`;
+      return Promise.resolve(new Response(echoXml, { status: 200 }));
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const { saveDashboard } = await import("@/server/seagull/dashboards");
+    const result = await saveDashboard({
+      name: "New",
+      owner: "opuser",
+      width: 1920,
+      height: 1080,
+      widgets: [
+        { id: "w-cpu-kpi", kind: "kpi", title: "CPU %", x: 20, y: 20, w: 260, h: 160 },
+      ],
+    });
+
+    expect(result.id).toBe("42");
+    expect(result.widgets).toHaveLength(1);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+  });
 });

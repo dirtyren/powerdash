@@ -4,6 +4,7 @@ import {
   DashboardSummarySchema,
   type Dashboard,
   type DashboardSummary,
+  type CreateDashboard,
 } from "../schemas/dashboard";
 import { WidgetRefSchema } from "../schemas/widget";
 import { buildSaveDashboardBody } from "./save-payload";
@@ -58,14 +59,17 @@ const SAVE_ERROR_MESSAGES: Record<number, string> = {
   [-4]: "You do not have permission to save this dashboard.",
 };
 
-export async function saveDashboard(dashboard: Dashboard): Promise<Dashboard> {
-  // TODO(P2.1→staging): the `widgets` field packed into the save payload is
-  // an extension not used by the legacy Flex client (see
-  // docs/seagull-save-api.md §Implication). Must be validated against a real
-  // OpMon dev instance before promotion: if seagull silently ignores the
-  // field, every save will return HTTP 200 with positive `output` but layout
-  // changes will not persist — a silent data-loss failure mode.
-  const body = buildSaveDashboardBody(dashboard);
+export async function saveDashboard(
+  input: Dashboard | CreateDashboard,
+): Promise<Dashboard> {
+  // TODO(P2.2→staging): the `widgets` field packed into the save payload
+  // is an extension not used by the legacy Flex client, AND the create-new
+  // flow sends a body without `id`. Both assumptions are inferred from
+  // docs/seagull-save-api.md; neither has been empirically validated
+  // against a real OpMon dev instance. If seagull silently ignores
+  // `widgets` OR rejects id-less bodies, saves will fail opaquely. Must
+  // be validated before promotion.
+  const body = buildSaveDashboardBody(input);
   const raw = await callSeagullJson({ path: SAVE_PATH, body });
   const parsed = SaveResponseSchema.parse(raw);
 
