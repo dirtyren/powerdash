@@ -57,6 +57,12 @@ const SAVE_ERROR_MESSAGES: Record<number, string> = {
 };
 
 export async function saveDashboard(dashboard: Dashboard): Promise<Dashboard> {
+  // TODO(P2.1→staging): the `widgets` field packed into the save payload is
+  // an extension not used by the legacy Flex client (see
+  // docs/seagull-save-api.md §Implication). Must be validated against a real
+  // OpMon dev instance before promotion: if seagull silently ignores the
+  // field, every save will return HTTP 200 with positive `output` but layout
+  // changes will not persist — a silent data-loss failure mode.
   const body = buildSaveDashboardBody(dashboard);
   const raw = await callSeagullJson({ path: SAVE_PATH, body });
   const parsed = SaveResponseSchema.parse(raw);
