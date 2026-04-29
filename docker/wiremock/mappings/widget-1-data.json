@@ -1,0 +1,8 @@
+{
+  "request": { "method": "GET", "urlPath": "/widgets/w-cpu-kpi/data.xml" },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/xml" },
+    "bodyFileName": "widget-1-data.xml"
+  }
+}

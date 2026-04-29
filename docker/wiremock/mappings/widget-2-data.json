@@ -1,0 +1,8 @@
+{
+  "request": { "method": "GET", "urlPath": "/widgets/w-cpu-line/data.xml" },
+  "response": {
+    "status": 200,
+    "headers": { "Content-Type": "application/xml" },
+    "bodyFileName": "widget-2-data.xml"
+  }
+}

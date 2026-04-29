@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+  <dashboard>
+    <id>1</id>
+    <name>Infrastructure Overview</name>
+    <owner>opuser</owner>
+    <widgets>
+      <widget>
+        <id>w-cpu-kpi</id>
+        <kind>kpi</kind>
+        <title>CPU %</title>
+        <x>0</x><y>0</y><w>3</w><h>2</h>
+      </widget>
+      <widget>
+        <id>w-cpu-line</id>
+        <kind>line</kind>
+        <title>CPU over time</title>
+        <x>3</x><y>0</y><w>6</w><h>4</h>
+      </widget>
+      <widget>
+        <id>w-hosts-table</id>
+        <kind>table</kind>
+        <title>Hosts</title>
+        <x>0</x><y>2</y><w>9</w><h>4</h>
+      </widget>
+    </widgets>
+  </dashboard>
+</response>

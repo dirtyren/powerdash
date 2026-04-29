@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<response>
+  <dashboards>
+    <dashboard>
+      <id>1</id>
+      <name>Infrastructure Overview</name>
+      <owner>opuser</owner>
+    </dashboard>
+    <dashboard>
+      <id>2</id>
+      <name>Network Core</name>
+      <owner>opuser</owner>
+    </dashboard>
+  </dashboards>
+</response>
