@@ -5,6 +5,8 @@ export default defineConfig({
   test: {
     environment: "happy-dom",
     globals: true,
+    unstubGlobals: true,
+    restoreMocks: true,
     include: ["tests/unit/**/*.test.ts", "tests/unit/**/*.test.tsx"],
     coverage: {
       reporter: ["text", "lcov"],
