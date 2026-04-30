@@ -33,7 +33,8 @@ describe("WidgetPalette (P2.3)", () => {
     render(<WidgetPalette onAdd={onAdd} />);
     fireEvent.click(screen.getByRole("button", { name: "Bar chart" }));
     expect(onAdd).toHaveBeenCalledTimes(1);
-    expect(onAdd.mock.calls[0]![0].kind).toBe("bar");
+    const arg = onAdd.mock.calls[0]?.[0] as { kind: string } | undefined;
+    expect(arg?.kind).toBe("bar");
   });
 
   it("buttons are never disabled (no duplicate guard)", () => {

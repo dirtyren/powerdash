@@ -11,7 +11,7 @@ function wrapper(children: React.ReactNode) {
 describe("LineChart", () => {
   beforeEach(() => vi.restoreAllMocks());
 
-  it("renders without crashing when backend 404s (sample fallback)", async () => {
+  it("renders without crashing when backend 404s (sample fallback)", () => {
     vi.stubGlobal("fetch", () =>
       Promise.resolve(new Response("", { status: 404 })),
     );
