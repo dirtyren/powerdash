@@ -27,6 +27,7 @@ export const lineAdapter: WidgetAdapter = {
   defaultTitle: "Line chart",
   defaultW: 480,
   defaultH: 320,
+  seriesType: "line",
   Renderer: LineChart,
   sampleData: LINE_SAMPLE,
 };

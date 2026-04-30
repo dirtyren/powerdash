@@ -41,6 +41,13 @@ export function familyLabel(f: WidgetFamily): string {
   return FAMILY_LABELS[f];
 }
 
+export type SeriesType =
+  | "line"
+  | "bar"
+  | "area"
+  | "stacked-bar"
+  | "scatter";
+
 export interface WidgetAdapter {
   kind: WidgetKind;
   family: WidgetFamily;
@@ -51,6 +58,7 @@ export interface WidgetAdapter {
   buildOption?: (widget: WidgetRef) => EChartsCoreOption;
   Renderer?: ComponentType<{ widget: WidgetRef }>;
   sampleData?: WidgetData;
+  seriesType?: SeriesType;
 }
 
 // The registry is populated by side-effect imports of adapter modules. The

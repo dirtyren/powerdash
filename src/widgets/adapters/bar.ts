@@ -12,6 +12,7 @@ export const barAdapter: WidgetAdapter = {
   defaultTitle: "Bar chart",
   defaultW: 480,
   defaultH: 320,
+  seriesType: "bar",
   buildOption: () => ({
     xAxis: { type: "category", data: ["A", "B", "C", "D", "E"] },
     yAxis: { type: "value" },

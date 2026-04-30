@@ -12,6 +12,7 @@ export const scatterAdapter: WidgetAdapter = {
   defaultTitle: "Scatter plot",
   defaultW: 480,
   defaultH: 320,
+  seriesType: "scatter",
   buildOption: () => ({
     xAxis: { type: "value" },
     yAxis: { type: "value" },

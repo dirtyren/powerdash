@@ -12,6 +12,7 @@ export const areaAdapter: WidgetAdapter = {
   defaultTitle: "Area chart",
   defaultW: 480,
   defaultH: 320,
+  seriesType: "area",
   buildOption: () => ({
     xAxis: { type: "category", data: ["Mon", "Tue", "Wed", "Thu", "Fri"] },
     yAxis: { type: "value" },

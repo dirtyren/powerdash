@@ -12,6 +12,7 @@ export const stackedBarAdapter: WidgetAdapter = {
   defaultTitle: "Stacked bar",
   defaultW: 480,
   defaultH: 320,
+  seriesType: "stacked-bar",
   buildOption: () => ({
     xAxis: { type: "category", data: ["Q1", "Q2", "Q3", "Q4"] },
     yAxis: { type: "value" },
