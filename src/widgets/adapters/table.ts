@@ -1,5 +1,5 @@
 import type { WidgetAdapter } from "../adapter";
-import { WIDGET_ADAPTERS } from "../adapter";
+import { WIDGET_ADAPTERS } from "../adapter-registry";
 import { DataTable } from "@/components/widgets/DataTable";
 import type { TableData } from "@/server/schemas/widget";
 

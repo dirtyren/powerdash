@@ -1,5 +1,5 @@
 import type { WidgetAdapter } from "../adapter";
-import { WIDGET_ADAPTERS } from "../adapter";
+import { WIDGET_ADAPTERS } from "../adapter-registry";
 import { KpiTile } from "@/components/widgets/KpiTile";
 import type { KpiData } from "@/server/schemas/widget";
 

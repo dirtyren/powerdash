@@ -1,5 +1,5 @@
 import type { WidgetAdapter } from "../adapter";
-import { WIDGET_ADAPTERS } from "../adapter";
+import { WIDGET_ADAPTERS } from "../adapter-registry";
 import { LineChart } from "@/components/widgets/LineChart";
 import type { LineData } from "@/server/schemas/widget";
 

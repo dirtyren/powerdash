@@ -53,11 +53,10 @@ export interface WidgetAdapter {
   sampleData?: WidgetData;
 }
 
-// The registry is populated by side-effect imports of adapter modules (wired
-// in Task 15). Keep this file the single place where the full set is
-// assembled so the TypeScript `Record<WidgetKind, WidgetAdapter>` type gives
-// us exhaustiveness checking at compile time once all modules are imported.
-export const WIDGET_ADAPTERS: Record<WidgetKind, WidgetAdapter> = {} as Record<WidgetKind, WidgetAdapter>;
+// The registry is populated by side-effect imports of adapter modules. The
+// mutable registry lives in adapter-registry.ts so we don't form a cycle at
+// runtime between this module and the per-kind adapter files.
+export { WIDGET_ADAPTERS } from "./adapter-registry";
 
 // Side-effect imports: each module calls `WIDGET_ADAPTERS[kind] = adapter`
 // at module load. Ordering doesn't matter.

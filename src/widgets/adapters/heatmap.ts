@@ -2,7 +2,7 @@ import * as echarts from "echarts/core";
 import { HeatmapChart } from "echarts/charts";
 import { VisualMapComponent } from "echarts/components";
 import type { WidgetAdapter } from "../adapter";
-import { WIDGET_ADAPTERS } from "../adapter";
+import { WIDGET_ADAPTERS } from "../adapter-registry";
 
 echarts.use([HeatmapChart, VisualMapComponent]);
 

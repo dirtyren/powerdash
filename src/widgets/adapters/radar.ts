@@ -2,7 +2,7 @@ import * as echarts from "echarts/core";
 import { RadarChart } from "echarts/charts";
 import { RadarComponent } from "echarts/components";
 import type { WidgetAdapter } from "../adapter";
-import { WIDGET_ADAPTERS } from "../adapter";
+import { WIDGET_ADAPTERS } from "../adapter-registry";
 
 echarts.use([RadarChart, RadarComponent]);
 

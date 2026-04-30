@@ -1,7 +1,7 @@
 import * as echarts from "echarts/core";
 import { TreeChart } from "echarts/charts";
 import type { WidgetAdapter } from "../adapter";
-import { WIDGET_ADAPTERS } from "../adapter";
+import { WIDGET_ADAPTERS } from "../adapter-registry";
 
 echarts.use([TreeChart]);
 
