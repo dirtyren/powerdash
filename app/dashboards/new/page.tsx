@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Route } from "next";
 import { AppShell } from "@/components/AppShell";
@@ -10,10 +10,7 @@ import { WidgetPalette } from "@/components/WidgetPalette";
 import { useCreateDashboard } from "@/hooks/useCreateDashboard";
 import type { CreateDashboard } from "@/server/schemas/dashboard";
 import type { WidgetRef } from "@/server/schemas/widget";
-import {
-  WIDGET_CATALOG,
-  type WidgetCatalogEntry,
-} from "@/config/widget-catalog";
+import type { WidgetAdapter } from "@/widgets/adapter";
 
 const INITIAL_DRAFT: CreateDashboard = {
   name: "Untitled dashboard",
@@ -28,23 +25,18 @@ export default function NewDashboardPage() {
   const create = useCreateDashboard();
   const [draft, setDraft] = useState<CreateDashboard>(INITIAL_DRAFT);
 
-  const existingWidgetIds = useMemo(
-    () => new Set(draft.widgets.map((w) => w.id)),
-    [draft.widgets],
-  );
-
   const isDirty =
     draft.widgets.length > 0 && draft.name.trim().length > 0;
 
-  const handleAddWidget = (entry: WidgetCatalogEntry) => {
+  const handleAddWidget = (adapter: WidgetAdapter) => {
     const next: WidgetRef = {
-      id: entry.id,
-      kind: entry.kind,
-      title: entry.title,
+      id: crypto.randomUUID().slice(0, 8),
+      kind: adapter.kind,
+      title: adapter.defaultTitle,
       x: 20,
       y: 20,
-      w: entry.defaultW,
-      h: entry.defaultH,
+      w: adapter.defaultW,
+      h: adapter.defaultH,
     };
     setDraft((d) => ({ ...d, widgets: [...d.widgets, next] }));
   };
@@ -91,11 +83,7 @@ export default function NewDashboardPage() {
             onChange={handleChangeWidgets}
           />
         </div>
-        <WidgetPalette
-          catalog={WIDGET_CATALOG}
-          existingWidgetIds={existingWidgetIds}
-          onAdd={handleAddWidget}
-        />
+        <WidgetPalette onAdd={handleAddWidget} />
       </div>
     </AppShell>
   );

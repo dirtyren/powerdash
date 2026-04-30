@@ -6,7 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { EditableDashboardCanvas } from "@/components/EditableDashboardCanvas";
 import { EditToolbar } from "@/components/EditToolbar";
 import { WidgetPalette } from "@/components/WidgetPalette";
-import { WIDGET_CATALOG, type WidgetCatalogEntry } from "@/config/widget-catalog";
+import type { WidgetAdapter } from "@/widgets/adapter";
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useSaveDashboard } from "@/hooks/useSaveDashboard";
@@ -59,24 +59,16 @@ export default function DashboardEditPage({
     router.push(viewHref);
   };
 
-  const existingWidgetIds = useMemo(
-    () =>
-      editWidgets !== null
-        ? new Set(editWidgets.map((w) => w.id))
-        : new Set<string>(),
-    [editWidgets],
-  );
-
-  const handleAddWidget = (entry: WidgetCatalogEntry) => {
+  const handleAddWidget = (adapter: WidgetAdapter) => {
     if (editWidgets === null) return;
     const next: WidgetRef = {
-      id: entry.id,
-      kind: entry.kind,
-      title: entry.title,
+      id: crypto.randomUUID().slice(0, 8),
+      kind: adapter.kind,
+      title: adapter.defaultTitle,
       x: 20,
       y: 20,
-      w: entry.defaultW,
-      h: entry.defaultH,
+      w: adapter.defaultW,
+      h: adapter.defaultH,
     };
     setEditWidgets([...editWidgets, next]);
   };
@@ -123,11 +115,7 @@ export default function DashboardEditPage({
                 {paletteOpen ? "›" : "‹"}
               </Button>
               {paletteOpen && (
-                <WidgetPalette
-                  catalog={WIDGET_CATALOG}
-                  existingWidgetIds={existingWidgetIds}
-                  onAdd={handleAddWidget}
-                />
+                <WidgetPalette onAdd={handleAddWidget} />
               )}
             </div>
           </div>
