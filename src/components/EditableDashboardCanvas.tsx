@@ -3,23 +3,15 @@
 import { useState } from "react";
 import { Rnd } from "react-rnd";
 import type { WidgetRef } from "@/server/schemas/widget";
-import { KpiTile } from "@/components/widgets/KpiTile";
-import { LineChart } from "@/components/widgets/LineChart";
-import { DataTable } from "@/components/widgets/DataTable";
+import { WIDGET_ADAPTERS } from "@/widgets/adapter";
+import { EchartsWidget } from "@/components/widgets/EchartsWidget";
+import { WidgetFrame } from "@/components/widgets/WidgetFrame";
 
 function WidgetByKind({ widget }: { widget: WidgetRef }) {
-  switch (widget.kind) {
-    case "kpi":
-      return <KpiTile widgetId={widget.id} title={widget.title} />;
-    case "line":
-      return <LineChart widgetId={widget.id} title={widget.title} />;
-    case "table":
-      return <DataTable widgetId={widget.id} title={widget.title} />;
-    default: {
-      const _exhaustive: never = widget.kind;
-      return <div>Unsupported: {_exhaustive}</div>;
-    }
-  }
+  const adapter = WIDGET_ADAPTERS[widget.kind];
+  if (adapter.Renderer) return <adapter.Renderer widget={widget} />;
+  if (adapter.buildOption) return <EchartsWidget option={adapter.buildOption(widget)} />;
+  return <div className="text-red-400">Unsupported: {widget.kind}</div>;
 }
 
 interface Props {
@@ -50,7 +42,7 @@ export function EditableDashboardCanvas({ width, height, widgets, onChange }: Pr
             position={{ x: w.x, y: w.y }}
             size={{ width: w.w, height: w.h }}
             bounds="parent"
-            cancel=".widget-remove-button"
+            cancel=".widget-remove-button, input"
             onDragStop={(_, d) =>
               update(w.id, { x: Math.round(d.x), y: Math.round(d.y) })
             }
@@ -82,7 +74,12 @@ export function EditableDashboardCanvas({ width, height, widgets, onChange }: Pr
                   ×
                 </button>
               )}
-              <WidgetByKind widget={w} />
+              <WidgetFrame
+                title={w.title}
+                onTitleChange={(next) => update(w.id, { title: next })}
+              >
+                <WidgetByKind widget={w} />
+              </WidgetFrame>
             </div>
           </Rnd>
         ))}
