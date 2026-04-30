@@ -83,3 +83,42 @@ describe("WidgetKindSchema (P2.3 extension)", () => {
     expect(() => WidgetKindSchema.parse("unknown")).toThrow();
   });
 });
+
+import { WidgetRefSchema, WidgetQuerySchema } from "@/server/schemas/widget";
+
+describe("WidgetQuerySchema + WidgetRefSchema.query (P3.2)", () => {
+  const base = {
+    id: "abc",
+    kind: "line",
+    title: "Line",
+    x: 0,
+    y: 0,
+    w: 480,
+    h: 320,
+  };
+
+  it("WidgetRef parses without query", () => {
+    expect(() => WidgetRefSchema.parse(base)).not.toThrow();
+  });
+
+  it("WidgetRef parses with a valid query (expr only)", () => {
+    const w = { ...base, query: { expr: "up" } };
+    const parsed = WidgetRefSchema.parse(w);
+    expect(parsed.query?.expr).toBe("up");
+  });
+
+  it("WidgetRef parses with expr and step", () => {
+    const w = { ...base, query: { expr: "up", step: 30 } };
+    const parsed = WidgetRefSchema.parse(w);
+    expect(parsed.query?.step).toBe(30);
+  });
+
+  it("WidgetQuerySchema rejects empty expr", () => {
+    expect(() => WidgetQuerySchema.parse({ expr: "" })).toThrow();
+  });
+
+  it("WidgetQuerySchema rejects non-positive step", () => {
+    expect(() => WidgetQuerySchema.parse({ expr: "up", step: 0 })).toThrow();
+    expect(() => WidgetQuerySchema.parse({ expr: "up", step: -5 })).toThrow();
+  });
+});

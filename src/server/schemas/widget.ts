@@ -13,6 +13,12 @@ export const WidgetKindSchema = z.enum([
 ]);
 export type WidgetKind = z.infer<typeof WidgetKindSchema>;
 
+export const WidgetQuerySchema = z.object({
+  expr: z.string().min(1),
+  step: z.number().positive().optional(),
+});
+export type WidgetQuery = z.infer<typeof WidgetQuerySchema>;
+
 export const WidgetRefSchema = z.object({
   id: z.string().min(1),
   kind: WidgetKindSchema,
@@ -21,6 +27,7 @@ export const WidgetRefSchema = z.object({
   y: z.coerce.number().int().nonnegative(),
   w: z.coerce.number().int().positive(),
   h: z.coerce.number().int().positive(),
+  query: WidgetQuerySchema.optional(),
 });
 export type WidgetRef = z.infer<typeof WidgetRefSchema>;
 
