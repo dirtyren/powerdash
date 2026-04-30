@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { cn } from "@/lib/utils";
 import { CreateDashboardSchema, DashboardSchema } from "@/server/schemas/dashboard";
+import { WidgetKindSchema } from "@/server/schemas/widget";
 
 describe("cn", () => {
   it("merges class names", () => {
@@ -57,5 +58,28 @@ describe("CreateDashboardSchema", () => {
       height: full.height,
       widgets: full.widgets,
     });
+  });
+});
+
+describe("WidgetKindSchema (P2.3 extension)", () => {
+  it("accepts all 20 widget kinds", () => {
+    const kinds = [
+      "kpi", "gauge",
+      "line", "area", "bar", "stacked-bar", "scatter",
+      "radar",
+      "pie", "donut", "funnel",
+      "tree", "sunburst", "treemap",
+      "heatmap", "sankey",
+      "histogram", "box-plot",
+      "candlestick",
+      "table",
+    ];
+    for (const k of kinds) {
+      expect(() => WidgetKindSchema.parse(k)).not.toThrow();
+    }
+  });
+
+  it("rejects unknown kinds", () => {
+    expect(() => WidgetKindSchema.parse("unknown")).toThrow();
   });
 });

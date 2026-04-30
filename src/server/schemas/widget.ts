@@ -1,6 +1,16 @@
 import { z } from "zod";
 
-export const WidgetKindSchema = z.enum(["kpi", "line", "table"]);
+export const WidgetKindSchema = z.enum([
+  "kpi", "gauge",
+  "line", "area", "bar", "stacked-bar", "scatter",
+  "radar",
+  "pie", "donut", "funnel",
+  "tree", "sunburst", "treemap",
+  "heatmap", "sankey",
+  "histogram", "box-plot",
+  "candlestick",
+  "table",
+]);
 export type WidgetKind = z.infer<typeof WidgetKindSchema>;
 
 export const WidgetRefSchema = z.object({
