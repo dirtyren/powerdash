@@ -39,10 +39,13 @@ test("edits a dashboard: drag a canvas widget, save, round-trip without error", 
   if (!box) throw new Error("CPU tile has no bounding box");
 
   // Drag the tile ~200 px right, ~150 px down. Fixture places it at (20, 20),
-  // so it ends up around (220, 170) in canvas space.
-  await page.mouse.move(box.x + 20, box.y + 20);
+  // so it ends up around (220, 170) in canvas space. Start the drag well
+  // below the title bar — P2.3's WidgetFrame puts an inline-rename input at
+  // the top of every widget, and react-rnd's `cancel=".widget-remove-button,
+  // input"` blocks drags that start inside the title input.
+  await page.mouse.move(box.x + 80, box.y + 80);
   await page.mouse.down();
-  await page.mouse.move(box.x + 220, box.y + 170, { steps: 10 });
+  await page.mouse.move(box.x + 280, box.y + 230, { steps: 10 });
   await page.mouse.up();
 
   await expect(page.getByText(/unsaved changes/)).toBeVisible({ timeout: 5_000 });
