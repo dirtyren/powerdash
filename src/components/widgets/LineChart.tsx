@@ -1,24 +1,21 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import type { EChartsOption } from "echarts";
 import { useMemo } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { useWidgetData } from "@/hooks/useWidgetData";
+import * as echarts from "echarts/core";
+import { LineChart as EchartsLineSeries } from "echarts/charts";
+import type { WidgetRef } from "@/server/schemas/widget";
+import { useWidgetDataOrSample } from "@/hooks/useWidgetDataOrSample";
+import { LINE_SAMPLE } from "@/widgets/adapters/line";
+import { EchartsWidget } from "@/components/widgets/EchartsWidget";
+import type { EChartsCoreOption } from "@/widgets/echarts-core";
 
-const ReactECharts = dynamic(
-  async () => {
-    const mod = await import("echarts-for-react");
-    return mod.default;
-  },
-  { ssr: false },
-);
+echarts.use([EchartsLineSeries]);
 
-export function LineChart({ widgetId, title }: { widgetId: string; title: string }) {
-  const { data, isLoading, error } = useWidgetData(widgetId);
+export function LineChart({ widget }: { widget: WidgetRef }) {
+  const { data, isLoading } = useWidgetDataOrSample(widget.id, LINE_SAMPLE);
 
-  const option: EChartsOption | null = useMemo(() => {
-    if (!data || data.kind !== "line") return null;
+  const option: EChartsCoreOption | null = useMemo(() => {
+    if (data.kind !== "line") return null;
     return {
       tooltip: { trigger: "axis" },
       legend: { data: data.series.map((s) => s.name), textStyle: { color: "#cbd5e1" } },
@@ -44,16 +41,7 @@ export function LineChart({ widgetId, title }: { widgetId: string; title: string
     };
   }, [data]);
 
-  return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="h-72">
-        {isLoading && <div className="text-muted-foreground">…</div>}
-        {error && <div className="text-sm text-red-400">error</div>}
-        {option && <ReactECharts option={option} style={{ height: "100%", width: "100%" }} />}
-      </CardContent>
-    </Card>
-  );
+  if (isLoading) return <div className="text-muted-foreground">…</div>;
+  if (!option) return null;
+  return <EchartsWidget option={option} />;
 }
