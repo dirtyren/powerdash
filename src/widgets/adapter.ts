@@ -58,3 +58,26 @@ export interface WidgetAdapter {
 // assembled so the TypeScript `Record<WidgetKind, WidgetAdapter>` type gives
 // us exhaustiveness checking at compile time once all modules are imported.
 export const WIDGET_ADAPTERS: Record<WidgetKind, WidgetAdapter> = {} as Record<WidgetKind, WidgetAdapter>;
+
+// Side-effect imports: each module calls `WIDGET_ADAPTERS[kind] = adapter`
+// at module load. Ordering doesn't matter.
+import "./adapters/kpi";
+import "./adapters/gauge";
+import "./adapters/line";
+import "./adapters/area";
+import "./adapters/bar";
+import "./adapters/stacked-bar";
+import "./adapters/scatter";
+import "./adapters/radar";
+import "./adapters/pie";
+import "./adapters/donut";
+import "./adapters/funnel";
+import "./adapters/tree";
+import "./adapters/sunburst";
+import "./adapters/treemap";
+import "./adapters/heatmap";
+import "./adapters/sankey";
+import "./adapters/histogram";
+import "./adapters/box-plot";
+import "./adapters/candlestick";
+import "./adapters/table";
