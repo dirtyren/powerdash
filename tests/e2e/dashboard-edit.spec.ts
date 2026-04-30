@@ -18,6 +18,13 @@ test("edits a dashboard: drag a canvas widget, save, round-trip without error", 
   await expect(page).toHaveURL(/\/dashboards\/1\/edit$/);
   await expect(page.getByText(/no changes/)).toBeVisible({ timeout: 15_000 });
 
+  // Rename the dashboard inline via the toolbar's name input. The input is
+  // aria-label="Dashboard name" (from EditToolbar's onTitleChange branch).
+  const nameInput = page.getByRole("textbox", { name: "Dashboard name" });
+  await expect(nameInput).toHaveValue("Infrastructure Overview");
+  await nameInput.fill("Renamed by E2E");
+  await expect(page.getByText(/unsaved changes/)).toBeVisible({ timeout: 5_000 });
+
   // The CPU KPI tile lives inside a react-rnd wrapper (the ancestor div with
   // inline style positioning). Our own inner div carries data-widget-id.
   // Try the left/top positioned ancestor first; fall back to transform
