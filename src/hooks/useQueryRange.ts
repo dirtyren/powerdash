@@ -37,5 +37,6 @@ export function useQueryRange(expr: string, opts: QueryRangeOptions = {}) {
     queryKey: ["promql-range", expr, opts.start, opts.end, opts.step],
     queryFn: () => fetchRange(expr, opts),
     refetchInterval: opts.refetchIntervalMs ?? 15_000,
+    enabled: expr.trim().length > 0,
   });
 }
