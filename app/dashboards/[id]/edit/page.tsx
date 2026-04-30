@@ -30,28 +30,36 @@ export default function DashboardEditPage({
   const save = useSaveDashboard(id);
 
   const [editWidgets, setEditWidgets] = useState<WidgetRef[] | null>(null);
+  const [editName, setEditName] = useState<string | null>(null);
   const [paletteOpen, setPaletteOpen] = useState<boolean>(true);
 
   useEffect(() => {
     if (data && editWidgets === null) {
       setEditWidgets(data.widgets);
+      setEditName(data.name);
     }
   }, [data, editWidgets]);
 
   const isDirty = useMemo(() => {
-    if (!data || editWidgets === null) return false;
-    return stableKey(editWidgets) !== stableKey(data.widgets);
-  }, [data, editWidgets]);
+    if (!data || editWidgets === null || editName === null) return false;
+    return (
+      editName !== data.name ||
+      stableKey(editWidgets) !== stableKey(data.widgets)
+    );
+  }, [data, editWidgets, editName]);
 
   const viewHref = `/dashboards/${id}` as Route;
 
   const handleSave = () => {
-    if (editWidgets === null) return;
-    save.mutate(editWidgets, {
-      onSuccess: () => {
-        router.push(viewHref);
+    if (editWidgets === null || editName === null) return;
+    save.mutate(
+      { widgets: editWidgets, name: editName },
+      {
+        onSuccess: () => {
+          router.push(viewHref);
+        },
       },
-    });
+    );
   };
 
   const handleCancel = () => {
@@ -89,11 +97,12 @@ export default function DashboardEditPage({
       {data && editWidgets !== null && (
         <>
           <EditToolbar
-            title={data.name}
+            title={editName ?? data.name}
             isDirty={isDirty}
             isSaving={save.isPending}
             onSave={handleSave}
             onCancel={handleCancel}
+            onTitleChange={setEditName}
           />
           <div className="flex gap-4">
             <div className="min-w-0 flex-1">

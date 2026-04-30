@@ -4,12 +4,17 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Dashboard } from "@/server/schemas/dashboard";
 import type { WidgetRef } from "@/server/schemas/widget";
 
-async function saveDashboardApi(id: string, widgets: WidgetRef[]): Promise<Dashboard> {
+export interface SaveDashboardInput {
+  widgets: WidgetRef[];
+  name?: string;
+}
+
+async function saveDashboardApi(id: string, input: SaveDashboardInput): Promise<Dashboard> {
   const r = await fetch(`/api/dashboards/${encodeURIComponent(id)}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ widgets }),
+    body: JSON.stringify(input),
   });
   if (!r.ok) {
     const text = await r.text();
@@ -22,7 +27,7 @@ async function saveDashboardApi(id: string, widgets: WidgetRef[]): Promise<Dashb
 export function useSaveDashboard(id: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (widgets: WidgetRef[]) => saveDashboardApi(id, widgets),
+    mutationFn: (input: SaveDashboardInput) => saveDashboardApi(id, input),
     onSuccess: (saved) => {
       qc.setQueryData(["dashboard", id], saved);
       void qc.invalidateQueries({ queryKey: ["dashboards"] });
