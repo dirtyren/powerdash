@@ -2,20 +2,31 @@
 
 import { useEffect, useMemo, useState, use } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { EditableDashboardCanvas } from "@/components/EditableDashboardCanvas";
 import { EditToolbar } from "@/components/EditToolbar";
 import { WidgetPalette } from "@/components/WidgetPalette";
+import { QueryEditor } from "@/components/widgets/QueryEditor";
 import type { WidgetAdapter } from "@/widgets/adapter";
 import { Button } from "@/components/ui/button";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useSaveDashboard } from "@/hooks/useSaveDashboard";
-import type { WidgetRef } from "@/server/schemas/widget";
+import type { WidgetRef, WidgetQuery } from "@/server/schemas/widget";
 import type { Route } from "next";
 
 function stableKey(widgets: WidgetRef[]): string {
   return JSON.stringify(
-    widgets.map((w) => [w.id, w.kind, w.title, w.x, w.y, w.w, w.h]),
+    widgets.map((w) => [
+      w.id,
+      w.kind,
+      w.title,
+      w.x,
+      w.y,
+      w.w,
+      w.h,
+      w.query ?? null,
+    ]),
   );
 }
 
@@ -26,12 +37,34 @@ export default function DashboardEditPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
+  const qc = useQueryClient();
   const { data, isLoading, error } = useDashboard(id);
   const save = useSaveDashboard(id);
 
   const [editWidgets, setEditWidgets] = useState<WidgetRef[] | null>(null);
   const [editName, setEditName] = useState<string | null>(null);
   const [paletteOpen, setPaletteOpen] = useState<boolean>(true);
+  const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
+
+  const selectedWidget =
+    editWidgets !== null && selectedWidgetId !== null
+      ? editWidgets.find((w) => w.id === selectedWidgetId) ?? null
+      : null;
+
+  const handleApplyQuery =
+    (widgetId: string) => (next: WidgetQuery | undefined) => {
+      if (editWidgets === null) return;
+      setEditWidgets(
+        editWidgets.map((w) =>
+          w.id === widgetId
+            ? {
+                ...w,
+                ...(next !== undefined ? { query: next } : { query: undefined }),
+              }
+            : w,
+        ),
+      );
+    };
 
   useEffect(() => {
     if (data && editWidgets === null) {
@@ -52,10 +85,24 @@ export default function DashboardEditPage({
 
   const handleSave = () => {
     if (editWidgets === null || editName === null) return;
+    const snapshot = editWidgets;
     save.mutate(
-      { widgets: editWidgets, name: editName },
+      { widgets: snapshot, name: editName },
       {
-        onSuccess: () => {
+        onSuccess: (saved) => {
+          // WireMock/Seagull may not echo the `query` field back from the
+          // static fixture; reattach queries from the POSTed snapshot so the
+          // in-session view remains consistent. Harmless no-op against a
+          // backend that does persist the field.
+          const byId = new Map(snapshot.map((w) => [w.id, w]));
+          const mergedWidgets = saved.widgets.map((w) => {
+            const source = byId.get(w.id);
+            return source?.query ? { ...w, query: source.query } : w;
+          });
+          qc.setQueryData(["dashboard", id], {
+            ...saved,
+            widgets: mergedWidgets,
+          });
           router.push(viewHref);
         },
       },
@@ -111,6 +158,8 @@ export default function DashboardEditPage({
                 height={data.height}
                 widgets={editWidgets}
                 onChange={setEditWidgets}
+                selectedId={selectedWidgetId}
+                onSelect={setSelectedWidgetId}
               />
             </div>
             <div className="flex items-start">
@@ -124,7 +173,15 @@ export default function DashboardEditPage({
                 {paletteOpen ? "›" : "‹"}
               </Button>
               {paletteOpen && (
-                <WidgetPalette onAdd={handleAddWidget} />
+                selectedWidget ? (
+                  <QueryEditor
+                    widget={selectedWidget}
+                    onApply={handleApplyQuery(selectedWidget.id)}
+                    onBack={() => setSelectedWidgetId(null)}
+                  />
+                ) : (
+                  <WidgetPalette onAdd={handleAddWidget} />
+                )
               )}
             </div>
           </div>

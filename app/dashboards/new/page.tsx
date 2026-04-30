@@ -7,9 +7,10 @@ import { AppShell } from "@/components/AppShell";
 import { EditableDashboardCanvas } from "@/components/EditableDashboardCanvas";
 import { EditToolbar } from "@/components/EditToolbar";
 import { WidgetPalette } from "@/components/WidgetPalette";
+import { QueryEditor } from "@/components/widgets/QueryEditor";
 import { useCreateDashboard } from "@/hooks/useCreateDashboard";
 import type { CreateDashboard } from "@/server/schemas/dashboard";
-import type { WidgetRef } from "@/server/schemas/widget";
+import type { WidgetRef, WidgetQuery } from "@/server/schemas/widget";
 import type { WidgetAdapter } from "@/widgets/adapter";
 
 const INITIAL_DRAFT: CreateDashboard = {
@@ -24,6 +25,27 @@ export default function NewDashboardPage() {
   const router = useRouter();
   const create = useCreateDashboard();
   const [draft, setDraft] = useState<CreateDashboard>(INITIAL_DRAFT);
+  const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
+
+  const selectedWidget =
+    selectedWidgetId !== null
+      ? draft.widgets.find((w) => w.id === selectedWidgetId) ?? null
+      : null;
+
+  const handleApplyQuery =
+    (widgetId: string) => (next: WidgetQuery | undefined) => {
+      setDraft((d) => ({
+        ...d,
+        widgets: d.widgets.map((w) =>
+          w.id === widgetId
+            ? {
+                ...w,
+                ...(next !== undefined ? { query: next } : { query: undefined }),
+              }
+            : w,
+        ),
+      }));
+    };
 
   const isDirty =
     draft.widgets.length > 0 && draft.name.trim().length > 0;
@@ -81,9 +103,19 @@ export default function NewDashboardPage() {
             height={draft.height}
             widgets={draft.widgets}
             onChange={handleChangeWidgets}
+            selectedId={selectedWidgetId}
+            onSelect={setSelectedWidgetId}
           />
         </div>
-        <WidgetPalette onAdd={handleAddWidget} />
+        {selectedWidget ? (
+            <QueryEditor
+              widget={selectedWidget}
+              onApply={handleApplyQuery(selectedWidget.id)}
+              onBack={() => setSelectedWidgetId(null)}
+            />
+          ) : (
+            <WidgetPalette onAdd={handleAddWidget} />
+          )}
       </div>
     </AppShell>
   );
