@@ -13,6 +13,7 @@ services:
       - NODE_ENV=development
       - SEAGULL_BASE_URL=http://mock-api:8080
       - DATABASE_URL=postgres://opmon:opmon@postgres:5432/opmon
+      - PROMETHEUS_BASE_URL=http://prometheus:9090
     volumes:
       - ..:/app
       - /app/node_modules
@@ -22,6 +23,8 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
+      prometheus:
+        condition: service_started
     restart: unless-stopped
 
   mock-api:
@@ -33,6 +36,18 @@ services:
     volumes:
       - ./wiremock/mappings:/home/wiremock/mappings:ro
       - ./wiremock/__files:/home/wiremock/__files:ro
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: dashboard-html-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=6h
     restart: unless-stopped
 
   postgres:
