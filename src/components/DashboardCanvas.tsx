@@ -1,23 +1,15 @@
 "use client";
 
 import type { WidgetRef } from "@/server/schemas/widget";
-import { KpiTile } from "@/components/widgets/KpiTile";
-import { LineChart } from "@/components/widgets/LineChart";
-import { DataTable } from "@/components/widgets/DataTable";
+import { WIDGET_ADAPTERS } from "@/widgets/adapter";
+import { EchartsWidget } from "@/components/widgets/EchartsWidget";
+import { WidgetFrame } from "@/components/widgets/WidgetFrame";
 
 function WidgetByKind({ widget }: { widget: WidgetRef }) {
-  switch (widget.kind) {
-    case "kpi":
-      return <KpiTile widgetId={widget.id} title={widget.title} />;
-    case "line":
-      return <LineChart widgetId={widget.id} title={widget.title} />;
-    case "table":
-      return <DataTable widgetId={widget.id} title={widget.title} />;
-    default: {
-      const _exhaustive: never = widget.kind;
-      return <div>Unsupported: {_exhaustive}</div>;
-    }
-  }
+  const adapter = WIDGET_ADAPTERS[widget.kind];
+  if (adapter.Renderer) return <adapter.Renderer widget={widget} />;
+  if (adapter.buildOption) return <EchartsWidget option={adapter.buildOption(widget)} />;
+  return <div className="text-red-400">Unsupported: {widget.kind}</div>;
 }
 
 interface Props {
@@ -40,7 +32,9 @@ export function DashboardCanvas({ width, height, widgets }: Props) {
             className="absolute"
             style={{ left: w.x, top: w.y, width: w.w, height: w.h }}
           >
-            <WidgetByKind widget={w} />
+            <WidgetFrame title={w.title}>
+              <WidgetByKind widget={w} />
+            </WidgetFrame>
           </div>
         ))}
       </div>
