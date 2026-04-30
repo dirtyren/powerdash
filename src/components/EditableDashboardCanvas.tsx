@@ -3,16 +3,8 @@
 import { useState } from "react";
 import { Rnd } from "react-rnd";
 import type { WidgetRef } from "@/server/schemas/widget";
-import { WIDGET_ADAPTERS } from "@/widgets/adapter";
-import { EchartsWidget } from "@/components/widgets/EchartsWidget";
 import { WidgetFrame } from "@/components/widgets/WidgetFrame";
-
-function WidgetByKind({ widget }: { widget: WidgetRef }) {
-  const adapter = WIDGET_ADAPTERS[widget.kind];
-  if (adapter.Renderer) return <adapter.Renderer widget={widget} />;
-  if (adapter.buildOption) return <EchartsWidget option={adapter.buildOption(widget)} />;
-  return <div className="text-red-400">Unsupported: {widget.kind}</div>;
-}
+import { WidgetByKind } from "@/widgets/render";
 
 interface Props {
   width: number;
