@@ -7,6 +7,7 @@ import { SAVE_ERROR_HTTP } from "@/server/seagull/error-mapping";
 
 const PutBodySchema = z.object({
   widgets: z.array(WidgetRefSchema),
+  name: z.string().trim().min(1).optional(),
 });
 
 export async function PUT(
@@ -34,6 +35,7 @@ export async function PUT(
     const saved = await saveDashboard({
       ...existing,
       widgets: parsedBody.widgets,
+      ...(parsedBody.name !== undefined ? { name: parsedBody.name } : {}),
     });
     return NextResponse.json(saved, {
       headers: { "Cache-Control": "no-store" },

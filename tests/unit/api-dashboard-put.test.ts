@@ -96,4 +96,45 @@ describe("PUT /api/dashboards/[id]", () => {
     );
     expect(response.status).toBe(502);
   });
+
+  it("forwards name to the save payload when present in the PUT body", async () => {
+    let savedBody: string | null = null;
+    vi.stubGlobal("fetch", (url: string | URL | Request, init?: RequestInit) => {
+      const u = url instanceof Request ? url.url : url.toString();
+      if (u.endsWith(SAVE_PATH)) {
+        savedBody = typeof init?.body === "string" ? init.body : null;
+        return Promise.resolve(
+          new Response(JSON.stringify({ output: 1 }), { status: 200 }),
+        );
+      }
+      return Promise.resolve(new Response(detailXml, { status: 200 }));
+    });
+
+    const { PUT } = await import("@app/api/dashboards/[id]/route");
+    const res = await PUT(
+      makeRequest({
+        widgets: [
+          { id: "w-cpu-kpi", kind: "kpi", title: "CPU %", x: 20, y: 20, w: 260, h: 160 },
+        ],
+        name: "Renamed",
+      }),
+      { params: Promise.resolve({ id: "1" }) },
+    );
+    expect(res.status).toBe(200);
+
+    if (!savedBody) throw new Error("save body not captured");
+    const jsonStr = new URLSearchParams(savedBody).get("json");
+    if (!jsonStr) throw new Error("json field missing");
+    const parsed = JSON.parse(jsonStr) as { name: string };
+    expect(parsed.name).toBe("Renamed");
+  });
+
+  it("422s when name is whitespace-only (Zod rejects at the body boundary)", async () => {
+    const { PUT } = await import("@app/api/dashboards/[id]/route");
+    const res = await PUT(
+      makeRequest({ widgets: [], name: "   " }),
+      { params: Promise.resolve({ id: "1" }) },
+    );
+    expect(res.status).toBe(422);
+  });
 });
