@@ -11,19 +11,30 @@ interface Props {
   height: number;
   widgets: WidgetRef[];
   onChange: (next: WidgetRef[]) => void;
+  selectedId: string | null;
+  onSelect: (id: string | null) => void;
 }
 
-export function EditableDashboardCanvas({ width, height, widgets, onChange }: Props) {
+export function EditableDashboardCanvas({
+  width,
+  height,
+  widgets,
+  onChange,
+  selectedId,
+  onSelect,
+}: Props) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const update = (id: string, patch: Partial<WidgetRef>) =>
     onChange(widgets.map((w) => (w.id === id ? { ...w, ...patch } : w)));
 
-  const remove = (id: string) =>
+  const remove = (id: string) => {
     onChange(widgets.filter((w) => w.id !== id));
+    if (selectedId === id) onSelect(null);
+  };
 
   return (
-    <div className="overflow-auto">
+    <div className="overflow-auto" onClick={() => onSelect(null)}>
       <div
         className="relative mx-auto border border-border bg-card"
         style={{ width, height }}
@@ -49,9 +60,15 @@ export function EditableDashboardCanvas({ width, height, widgets, onChange }: Pr
           >
             <div
               data-widget-id={w.id}
-              className="relative h-full w-full"
+              className={`relative h-full w-full ${
+                selectedId === w.id ? "ring-2 ring-primary rounded" : ""
+              }`}
               onMouseEnter={() => setHoveredId(w.id)}
               onMouseLeave={() => setHoveredId(null)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect(w.id);
+              }}
             >
               {hoveredId === w.id && (
                 <button
