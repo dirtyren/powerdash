@@ -57,6 +57,18 @@ test("edits a dashboard: drag a canvas widget, save, round-trip without error", 
 
   await expect(page.getByText(/unsaved changes/)).toBeVisible({ timeout: 5_000 });
 
+  // Select the line widget (w-cpu-line) and attach a PromQL query.
+  await page.locator('[data-widget-id="w-cpu-line"]').click();
+
+  const exprInput = page.getByRole("textbox", { name: "PromQL expression" });
+  await expect(exprInput).toBeVisible({ timeout: 5_000 });
+  await exprInput.fill("scrape_duration_seconds");
+  await page.getByRole("button", { name: "Apply" }).click();
+
+  // The widget's "No query" placeholder should not appear (SeriesChart now
+  // has a non-empty expr so it either renders or shows loading/no samples).
+  await expect(page.getByText(/No query —/)).not.toBeVisible();
+
   await page.getByRole("button", { name: /^Save/ }).click();
 
   await expect(page).toHaveURL(/\/dashboards\/1$/, { timeout: 15_000 });
