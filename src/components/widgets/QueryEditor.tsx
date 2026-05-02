@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { PromQLEditor } from "@/components/widgets/PromQLEditor";
 import type { WidgetRef, WidgetQuery } from "@/server/schemas/widget";
 
 interface Props {
@@ -57,13 +58,13 @@ export function QueryEditor({ widget, onApply, onBack }: Props) {
       <label className="mb-2 block text-xs uppercase tracking-wide text-muted-foreground">
         PromQL expression
       </label>
-      <textarea
-        aria-label="PromQL expression"
-        value={expr}
-        onChange={(e) => setExpr(e.target.value)}
-        rows={5}
-        className="mb-3 w-full rounded border border-border bg-background p-2 font-mono text-xs"
-      />
+      <div className="mb-3">
+        <PromQLEditor
+          value={expr}
+          onChange={setExpr}
+          onApply={handleApply}
+        />
+      </div>
       <label className="mb-1 block text-xs uppercase tracking-wide text-muted-foreground">
         Step (seconds, optional)
       </label>

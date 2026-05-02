@@ -3,6 +3,23 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { QueryEditor } from "@/components/widgets/QueryEditor";
 import type { WidgetRef } from "@/server/schemas/widget";
 
+vi.mock("@/components/widgets/PromQLEditor", () => ({
+  PromQLEditor: ({
+    value,
+    onChange,
+  }: {
+    value: string;
+    onChange: (next: string) => void;
+    onApply?: () => void;
+  }) => (
+    <textarea
+      aria-label="PromQL expression"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    />
+  ),
+}));
+
 const baseWidget: WidgetRef = {
   id: "abc",
   kind: "line",
