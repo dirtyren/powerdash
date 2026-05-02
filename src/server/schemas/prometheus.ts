@@ -41,3 +41,29 @@ export const PromErrorResponseSchema = z.object({
   error: z.string(),
 });
 export type PromErrorResponse = z.infer<typeof PromErrorResponseSchema>;
+
+export const PromLabelsResponseSchema = z.object({
+  status: z.literal("success"),
+  data: z.array(z.string()),
+});
+export type PromLabelsResponse = z.infer<typeof PromLabelsResponseSchema>;
+
+export const PromLabelValuesResponseSchema = z.object({
+  status: z.literal("success"),
+  data: z.array(z.string()),
+});
+export type PromLabelValuesResponse = z.infer<typeof PromLabelValuesResponseSchema>;
+
+export const PromMetadataResponseSchema = z.object({
+  status: z.literal("success"),
+  data: z.record(
+    z.array(
+      z.object({
+        type: z.string(),
+        help: z.string(),
+        unit: z.string(),
+      }),
+    ),
+  ),
+});
+export type PromMetadataResponse = z.infer<typeof PromMetadataResponseSchema>;

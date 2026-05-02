@@ -3,6 +3,9 @@ import {
   PromRangeResponseSchema,
   PromInstantResponseSchema,
   PromErrorResponseSchema,
+  PromLabelsResponseSchema,
+  PromLabelValuesResponseSchema,
+  PromMetadataResponseSchema,
 } from "@/server/schemas/prometheus";
 
 describe("Prometheus schemas", () => {
@@ -64,5 +67,38 @@ describe("Prometheus schemas", () => {
 
   it("rejects a response missing the status field", () => {
     expect(() => PromRangeResponseSchema.parse({ data: {} })).toThrow();
+  });
+});
+
+describe("PromLabelsResponseSchema", () => {
+  it("parses a valid labels response", () => {
+    const raw = { status: "success", data: ["__name__", "job", "instance"] };
+    expect(PromLabelsResponseSchema.parse(raw).data).toEqual([
+      "__name__", "job", "instance",
+    ]);
+  });
+  it("rejects wrong shape", () => {
+    expect(() => PromLabelsResponseSchema.parse({ status: "success", data: 1 })).toThrow();
+  });
+});
+
+describe("PromLabelValuesResponseSchema", () => {
+  it("parses a valid label-values response", () => {
+    const raw = { status: "success", data: ["prometheus", "worker"] };
+    expect(PromLabelValuesResponseSchema.parse(raw).data).toHaveLength(2);
+  });
+});
+
+describe("PromMetadataResponseSchema", () => {
+  it("parses a valid metadata response", () => {
+    const raw = {
+      status: "success",
+      data: {
+        up: [{ type: "gauge", help: "1 when up", unit: "" }],
+        scrape_duration_seconds: [{ type: "gauge", help: "duration", unit: "" }],
+      },
+    };
+    const parsed = PromMetadataResponseSchema.parse(raw);
+    expect(parsed.data.up?.[0]?.type).toBe("gauge");
   });
 });
