@@ -4,23 +4,7 @@ import type {
   PromMatrixResult,
 } from "@/server/schemas/prometheus";
 import type { SeriesType } from "@/widgets/adapter";
-
-function labelFor(metric: Record<string, string>): string {
-  const { __name__, ...rest } = metric;
-  const tail = Object.entries(rest)
-    .map(([k, v]) => `${k}="${v}"`)
-    .join(", ");
-  if (__name__) return tail ? `${__name__}{${tail}}` : __name__;
-  return tail || "series";
-}
-
-// Prometheus encodes numbers as strings ("+Inf" / "-Inf" / "NaN" or floats).
-// parseFloat yields Infinity/NaN for those; coerce non-finite → null and set
-// connectNulls:false so echarts renders them as gaps on line/area.
-function parseValue(v: string): number | null {
-  const n = parseFloat(v);
-  return Number.isFinite(n) ? n : null;
-}
+import { labelFor, parseValue } from "./instant-helpers";
 
 function baseSeries(s: PromMatrixResult, seriesType: SeriesType) {
   const name = labelFor(s.metric);
