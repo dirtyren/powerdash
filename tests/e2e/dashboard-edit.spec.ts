@@ -69,6 +69,19 @@ test("edits a dashboard: drag a canvas widget, save, round-trip without error", 
   // has a non-empty expr so it either renders or shows loading/no samples).
   await expect(page.getByText(/No query —/)).not.toBeVisible();
 
+  // Deselect and then select the KPI widget; attach a PromQL query to it too.
+  await page.getByRole("button", { name: "← Widgets" }).click();
+  await page.locator('[data-widget-id="w-cpu-kpi"]').click({ force: true });
+
+  const kpiExpr = page.getByRole("textbox", { name: "PromQL expression" });
+  await expect(kpiExpr).toBeVisible({ timeout: 5_000 });
+  await kpiExpr.fill("up");
+  await page.getByRole("button", { name: "Apply" }).click();
+
+  // KPI renders either a number or "No samples." — either proves the PromKpi
+  // branch took over. The "No query" placeholder must not be visible.
+  await expect(page.getByText(/No query —/)).not.toBeVisible();
+
   await page.getByRole("button", { name: /^Save/ }).click();
 
   await expect(page).toHaveURL(/\/dashboards\/1$/, { timeout: 15_000 });
