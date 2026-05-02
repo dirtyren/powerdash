@@ -35,8 +35,8 @@ export function PromTable({ widget }: { widget: WidgetRef }) {
           accessorKey: key,
           header: key,
           cell: (info) => {
-            const v = info.getValue();
-            return <>{v == null ? "" : String(v)}</>;
+            const v = info.getValue() as string | undefined;
+            return <>{v ?? ""}</>;
           },
         })),
         {
