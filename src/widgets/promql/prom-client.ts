@@ -32,14 +32,14 @@ export function createPromClient(): PrometheusClient {
       const { data } = await getJson<{
         data: Record<string, Array<{ type: string; help: string; unit: string }>>;
       }>("/api/promql/metadata");
-      return data as Record<string, { type: string; help: string }[]>;
+      return data;
     },
-    async series() {
+    series() {
       // Matcher-scoped lookup is deferred to a later phase.
-      return [];
+      return Promise.resolve([]);
     },
-    async flags() {
-      return {};
+    flags() {
+      return Promise.resolve({});
     },
   };
 }
