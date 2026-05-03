@@ -17,7 +17,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 EXPOSE 3000
 ENV NEXT_TELEMETRY_DISABLED=1
-CMD ["pnpm", "dev", "--hostname", "0.0.0.0"]
+CMD ["sh", "-c", "pnpm db:migrate && pnpm db:seed && pnpm dev --hostname 0.0.0.0"]
 
 # --- build stage -----------------------------------------------------------
 FROM deps AS build
