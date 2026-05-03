@@ -73,20 +73,29 @@ test("edits a dashboard: drag a canvas widget, save, round-trip without error", 
   const box = await cpuTile.boundingBox();
   if (!box) throw new Error("CPU tile has no bounding box");
 
-  // Drag the tile ~200 px right, ~150 px down. Fixture places it at (20, 20),
-  // so it ends up around (220, 170) in canvas space. Start the drag well
-  // below the title bar — P2.3's WidgetFrame puts an inline-rename input at
-  // the top of every widget, and react-rnd's `cancel=".widget-remove-button,
-  // input"` blocks drags that start inside the title input.
+  // Drag the tile ~100 px down, 0 right. Fixture places it at (20, 20)
+  // alongside the line widget (x=300, w=720) and the hosts table (y=360).
+  // Keep the KPI's post-drag bounding box entirely in the left/top-left
+  // region so it does not overlap the line widget — otherwise later
+  // `click('[data-widget-id="w-cpu-kpi"]', {force:true})` lands on the
+  // line widget (which is rendered later in the DOM and therefore stacks
+  // on top of the KPI in overlap regions), breaking selection. Start the
+  // drag well below the title bar — P2.3's WidgetFrame puts an
+  // inline-rename input at the top of every widget, and react-rnd's
+  // `cancel=".widget-remove-button, input"` blocks drags that start inside
+  // the title input.
   await page.mouse.move(box.x + 80, box.y + 80);
   await page.mouse.down();
-  await page.mouse.move(box.x + 280, box.y + 230, { steps: 10 });
+  await page.mouse.move(box.x + 80, box.y + 180, { steps: 10 });
   await page.mouse.up();
 
   await expect(page.getByText(/unsaved changes/)).toBeVisible({ timeout: 5_000 });
 
   // Select the line widget (w-cpu-line) and attach a PromQL query.
   await page.locator('[data-widget-id="w-cpu-line"]').click();
+  await expect(page.getByText("Editing: CPU over time")).toBeVisible({
+    timeout: 5_000,
+  });
 
   const exprInput = page.getByRole("textbox", { name: "PromQL expression" });
   await expect(exprInput).toBeVisible({ timeout: 5_000 });
@@ -105,6 +114,11 @@ test("edits a dashboard: drag a canvas widget, save, round-trip without error", 
   // Deselect and then select the KPI widget; attach a PromQL query to it too.
   await page.getByRole("button", { name: "← Widgets" }).click();
   await page.locator('[data-widget-id="w-cpu-kpi"]').click({ force: true });
+
+  // Confirm selection switched to the KPI widget before typing — otherwise
+  // an in-flight React update can leave the line widget still selected and
+  // the Apply below mutates the wrong widget's query.
+  await expect(page.getByText("Editing: CPU %")).toBeVisible({ timeout: 5_000 });
 
   const kpiExpr = page.getByRole("textbox", { name: "PromQL expression" });
   await expect(kpiExpr).toBeVisible({ timeout: 5_000 });
