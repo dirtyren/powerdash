@@ -28,14 +28,12 @@ services:
     restart: unless-stopped
 
   mock-api:
-    image: wiremock/wiremock:3.9.1
+    build:
+      context: ./mock-api
+      dockerfile: Dockerfile
     container_name: dashboard-html-mock-api
     ports:
       - "8080:8080"
-    command: ["--global-response-templating", "--verbose"]
-    volumes:
-      - ./wiremock/mappings:/home/wiremock/mappings:ro
-      - ./wiremock/__files:/home/wiremock/__files:ro
     restart: unless-stopped
 
   prometheus:
