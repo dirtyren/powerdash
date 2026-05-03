@@ -4,7 +4,7 @@ import Link from "next/link";
 import type { Route } from "next";
 import { AppShell } from "@/components/AppShell";
 import { useDashboards } from "@/hooks/useDashboards";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default function HomePage() {
@@ -26,11 +26,8 @@ export default function HomePage() {
             <Link key={d.id} href={`/dashboards/${d.id}` as Route} className="block">
               <Card className="hover:border-primary transition-colors">
                 <CardHeader>
-                  <CardTitle>{d.owner}</CardTitle>
+                  <CardTitle>{d.name}</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="text-lg font-semibold">{d.name}</div>
-                </CardContent>
               </Card>
             </Link>
           ))}

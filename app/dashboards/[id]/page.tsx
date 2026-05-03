@@ -19,7 +19,6 @@ export default function DashboardDetailPage({ params }: { params: Promise<{ id: 
           <header className="mb-6 flex items-baseline justify-between">
             <h1 className="text-2xl font-semibold">{data.name}</h1>
             <div className="flex items-center gap-4">
-              <span className="text-muted-foreground text-sm">owner: {data.owner}</span>
               <Link href={`/dashboards/${id}/edit`}>
                 <Button size="sm">Edit</Button>
               </Link>

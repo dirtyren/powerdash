@@ -15,7 +15,6 @@ import type { WidgetAdapter } from "@/widgets/adapter";
 
 const INITIAL_DRAFT: CreateDashboard = {
   name: "Untitled dashboard",
-  owner: "opuser",
   width: 1920,
   height: 1080,
   widgets: [],
