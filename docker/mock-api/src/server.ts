@@ -2,6 +2,7 @@ import Fastify, { type FastifyInstance } from "fastify";
 import formbody from "@fastify/formbody";
 import { registerDashboardRoutes } from "./routes/dashboards";
 import { registerSaveRoutes } from "./routes/save";
+import { registerWidgetRoutes } from "./routes/widgets";
 
 export async function buildServer(): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
@@ -9,6 +10,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   app.get("/health", async () => ({ ok: true }));
   registerDashboardRoutes(app);
   registerSaveRoutes(app);
+  registerWidgetRoutes(app);
   return app;
 }
 

@@ -289,3 +289,37 @@ describe("save route", () => {
     await app.close();
   });
 });
+
+describe("widget-data route", () => {
+  it("GET /widgets/w-cpu-kpi/data.xml serves the fixture", async () => {
+    const app = await buildServer();
+    const res = await app.inject({
+      method: "GET",
+      url: "/widgets/w-cpu-kpi/data.xml",
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers["content-type"]).toMatch(/application\/xml/);
+    expect(res.body.length).toBeGreaterThan(0);
+    await app.close();
+  });
+
+  it("GET /widgets/nope/data.xml returns 404", async () => {
+    const app = await buildServer();
+    const res = await app.inject({
+      method: "GET",
+      url: "/widgets/nope/data.xml",
+    });
+    expect(res.statusCode).toBe(404);
+    await app.close();
+  });
+
+  it("GET /widgets/..%2Fsecret/data.xml is rejected without traversal", async () => {
+    const app = await buildServer();
+    const res = await app.inject({
+      method: "GET",
+      url: "/widgets/..%2Fsecret/data.xml",
+    });
+    expect(res.statusCode).toBe(404);
+    await app.close();
+  });
+});
