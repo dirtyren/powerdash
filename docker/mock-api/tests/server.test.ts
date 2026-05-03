@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { buildServer } from "../src/server";
 import { reset, list, get, set, allocateId } from "../src/store";
 import type { StoredDashboard } from "../src/types";
+import { escapeXML, serializeList, serializeDetail } from "../src/xml";
 
 describe("server scaffold", () => {
   it("responds to /health", async () => {
@@ -53,5 +54,79 @@ describe("store", () => {
     s.name = "mutated";
     reset();
     expect(get("1")?.name).toBe("Infrastructure Overview");
+  });
+});
+
+describe("xml serialization", () => {
+  it("escapeXML handles all 5 XML entities", () => {
+    expect(escapeXML(`a & b < c > d " e ' f`)).toBe(
+      "a &amp; b &lt; c &gt; d &quot; e &apos; f",
+    );
+  });
+
+  it("serializeList emits a <response><dashboards><dashboard> tree", () => {
+    const xml = serializeList([
+      { id: "1", name: "A", owner: "u", width: 1, height: 1, widgets: [] },
+      { id: "2", name: "B", owner: "u", width: 1, height: 1, widgets: [] },
+    ]);
+    expect(xml).toMatch(/^<\?xml version="1\.0" encoding="UTF-8"\?>/);
+    expect(xml).toContain("<response>");
+    expect(xml).toContain("<dashboards>");
+    expect(xml).toContain("<id>1</id>");
+    expect(xml).toContain("<name>A</name>");
+    expect(xml).toContain("<id>2</id>");
+    expect(xml).toContain("<name>B</name>");
+  });
+
+  it("serializeDetail emits id, name, owner, width, height, widgets", () => {
+    const xml = serializeDetail({
+      id: "1",
+      name: "A",
+      owner: "u",
+      width: 1920,
+      height: 1080,
+      widgets: [
+        { id: "w1", kind: "kpi", title: "T", x: 1, y: 2, w: 3, h: 4 },
+      ],
+    });
+    expect(xml).toContain("<id>1</id>");
+    expect(xml).toContain("<width>1920</width>");
+    expect(xml).toContain("<height>1080</height>");
+    expect(xml).toContain("<widget>");
+    expect(xml).toContain("<id>w1</id>");
+    expect(xml).toContain("<kind>kpi</kind>");
+    expect(xml).toContain("<x>1</x>");
+    expect(xml).toContain("<h>4</h>");
+  });
+
+  it("serializeDetail emits <query> only when present", () => {
+    const without = serializeDetail({
+      id: "1", name: "A", owner: "u", width: 1, height: 1,
+      widgets: [{ id: "w1", kind: "kpi", title: "T", x: 1, y: 2, w: 3, h: 4 }],
+    });
+    expect(without).not.toContain("<query>");
+
+    const withQuery = serializeDetail({
+      id: "1", name: "A", owner: "u", width: 1, height: 1,
+      widgets: [{
+        id: "w1", kind: "kpi", title: "T", x: 1, y: 2, w: 3, h: 4,
+        query: { expr: "up", step: 30 },
+      }],
+    });
+    expect(withQuery).toContain("<query>");
+    expect(withQuery).toContain("<expr>up</expr>");
+    expect(withQuery).toContain("<step>30</step>");
+  });
+
+  it("serializeDetail escapes XML-special chars in values", () => {
+    const xml = serializeDetail({
+      id: "1", name: "A & B", owner: "u", width: 1, height: 1,
+      widgets: [{
+        id: "w1", kind: "kpi", title: "Mix", x: 1, y: 2, w: 3, h: 4,
+        query: { expr: `up{job="api"}` },
+      }],
+    });
+    expect(xml).toContain("<name>A &amp; B</name>");
+    expect(xml).toContain("<expr>up{job=&quot;api&quot;}</expr>");
   });
 });
