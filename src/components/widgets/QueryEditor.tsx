@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PromQLEditor } from "@/components/widgets/PromQLEditor";
 import { ModeTabs } from "@/components/widgets/ModeTabs";
@@ -10,6 +10,7 @@ import {
   type BuilderState,
 } from "@/widgets/promql/builder-state";
 import { buildExpression } from "@/widgets/promql/build-expression";
+import { parseExpression } from "@/widgets/promql/parse-expression";
 import type { WidgetRef, WidgetQuery } from "@/server/schemas/widget";
 
 interface Props {
@@ -26,6 +27,12 @@ export function QueryEditor({ widget, onApply, onBack }: Props) {
   const [mode, setMode] = useState<"code" | "builder">("code");
   const [builderState, setBuilderState] =
     useState<BuilderState>(EMPTY_BUILDER_STATE);
+
+  const parsedBuilderState = useMemo(
+    () => parseExpression(expr),
+    [expr],
+  );
+  const canBuilder = expr.trim() === "" || parsedBuilderState !== null;
 
   // Reset local state whenever the selected widget changes.
   const widgetId = widget.id;
@@ -61,6 +68,17 @@ export function QueryEditor({ widget, onApply, onBack }: Props) {
     });
   };
 
+  const handleModeChange = (next: "code" | "builder") => {
+    if (next === "builder" && parsedBuilderState) {
+      setBuilderState(parsedBuilderState);
+    }
+    setMode(next);
+  };
+
+  useEffect(() => {
+    if (mode === "builder" && !canBuilder) setMode("code");
+  }, [mode, canBuilder]);
+
   const handleClear = () => {
     setExpr("");
     setStep("");
@@ -88,7 +106,15 @@ export function QueryEditor({ widget, onApply, onBack }: Props) {
         <span className="font-medium">{widget.title}</span>
       </div>
 
-      <ModeTabs mode={mode} onChange={setMode} />
+      <ModeTabs
+        mode={mode}
+        onChange={handleModeChange}
+        {...(!canBuilder && {
+          builderDisabled: {
+            reason: "This expression isn't supported by the Builder — edit as Code.",
+          },
+        })}
+      />
 
       {mode === "code" ? (
         <div className="my-3">

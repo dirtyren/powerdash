@@ -189,4 +189,47 @@ describe("QueryEditor", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Builder" }));
     expect(screen.getByRole("button", { name: "Apply" })).toBeDisabled();
   });
+
+  it("Builder tab populates the form from a parseable saved query", () => {
+    const widget: WidgetRef = {
+      ...baseWidget,
+      query: { expr: 'up{job="prometheus"}' },
+    };
+    render(
+      <QueryEditor widget={widget} onApply={() => {}} onBack={() => {}} />,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "Builder" }));
+    const input = screen.getByRole("textbox", { name: "builder-metric-mock" });
+    expect(input).toHaveValue("up");
+  });
+
+  it("Builder tab is disabled when saved query isn't builder-shape", () => {
+    const widget: WidgetRef = {
+      ...baseWidget,
+      query: { expr: "rate(up[5m]) / 2" },
+    };
+    render(
+      <QueryEditor widget={widget} onApply={() => {}} onBack={() => {}} />,
+    );
+    const builder = screen.getByRole("tab", { name: "Builder" });
+    expect(builder).toBeDisabled();
+    expect(builder).toHaveAttribute("title");
+  });
+
+  it("Clicking disabled Builder tab does not change mode", () => {
+    const widget: WidgetRef = {
+      ...baseWidget,
+      query: { expr: "rate(up[5m]) / 2" },
+    };
+    render(
+      <QueryEditor widget={widget} onApply={() => {}} onBack={() => {}} />,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "Builder" }));
+    expect(
+      screen.getByRole("textbox", { name: "PromQL expression" }),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole("textbox", { name: "builder-metric-mock" }),
+    ).toBeNull();
+  });
 });
