@@ -11,7 +11,7 @@ import type {
 // on `@lezer/common` directly (not a declared package dependency).
 type SyntaxNode = ReturnType<typeof promQLParser.parse>["topNode"];
 
-const AGG_FNS: ReadonlySet<string> = new Set<AggregationFn>([
+const AGG_FNS: ReadonlySet<AggregationFn> = new Set<AggregationFn>([
   "sum",
   "avg",
   "max",
@@ -20,12 +20,20 @@ const AGG_FNS: ReadonlySet<string> = new Set<AggregationFn>([
   "stddev",
   "stdvar",
 ]);
-const LABEL_OPS: ReadonlySet<string> = new Set<LabelOp>([
+const LABEL_OPS: ReadonlySet<LabelOp> = new Set<LabelOp>([
   "=",
   "!=",
   "=~",
   "!~",
 ]);
+
+function isAggregationFn(s: string): s is AggregationFn {
+  return (AGG_FNS as ReadonlySet<string>).has(s);
+}
+
+function isLabelOp(s: string): s is LabelOp {
+  return (LABEL_OPS as ReadonlySet<string>).has(s);
+}
 
 function unquote(raw: string): string {
   if (raw.length >= 2 && raw.startsWith('"') && raw.endsWith('"')) {
@@ -86,8 +94,13 @@ export function parseExpression(code: string): BuilderState | null {
   const trimmed = code.trim();
   if (!trimmed) return null;
 
-  const tree = promQLParser.parse(trimmed);
-  if (treeHasError(tree.topNode)) return null;
+  let tree;
+  try {
+    tree = promQLParser.parse(trimmed);
+    if (treeHasError(tree.topNode)) return null;
+  } catch {
+    return null;
+  }
 
   const top = firstMeaningful(tree.topNode);
   if (!top) return null;
@@ -112,8 +125,8 @@ function parseAggregate(code: string, node: SyntaxNode): BuilderState | null {
   const opNode = node.getChild("AggregateOp");
   if (!opNode) return null;
   const fnName = text(code, opNode);
-  if (!AGG_FNS.has(fnName)) return null;
-  const fn = fnName as AggregationFn;
+  if (!isAggregationFn(fnName)) return null;
+  const fn = fnName;
 
   // Modifier (by/without) — optional.
   const modifier = node.getChild("AggregateModifier");
@@ -233,10 +246,10 @@ function parseSelector(code: string, node: SyntaxNode): BuilderState | null {
       const valueNode = m.getChild("StringLiteral");
       if (!labelNode || !opNode || !valueNode) return null;
       const op = text(code, opNode);
-      if (!LABEL_OPS.has(op)) return null;
+      if (!isLabelOp(op)) return null;
       filters.push({
         label: text(code, labelNode),
-        op: op as LabelOp,
+        op,
         value: unquote(text(code, valueNode)),
       });
     }
