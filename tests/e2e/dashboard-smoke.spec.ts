@@ -3,9 +3,15 @@ import { test, expect } from "@playwright/test";
 test("lists dashboards and opens one with all three widget kinds", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Dashboards" })).toBeVisible();
-  await expect(page.getByText("Infrastructure Overview")).toBeVisible();
 
-  await page.getByText("Infrastructure Overview").click();
+  // The seed name appears in both the sidebar nav and the main grid.
+  // Scope to main to avoid a strict-mode violation.
+  const card = page
+    .getByRole("main")
+    .getByRole("link", { name: "Infrastructure Overview" });
+  await expect(card).toBeVisible();
+
+  await card.click();
   await expect(page.getByRole("heading", { name: "Infrastructure Overview" })).toBeVisible({
     timeout: 15_000,
   });

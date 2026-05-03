@@ -1,8 +1,8 @@
 // tests/e2e/dashboard-create.spec.ts
 // Creates a new dashboard from the home page, adds a widget from the P2.3
-// palette, saves, and asserts redirect. The stateful mock-api allocates a
-// fresh sequential id on create, so the redirect lands on /dashboards/<n>
-// where n >= 2. Round-trip persistence of layout is not asserted.
+// palette, saves, and asserts redirect. Postgres generates a v4 UUID on
+// create, so the redirect lands on /dashboards/<uuid>. Round-trip
+// persistence of layout is not asserted.
 
 import { test, expect } from "@playwright/test";
 
@@ -29,7 +29,7 @@ test("creates a new dashboard from the catalog palette", async ({ page }) => {
   await expect(saveBtn).toBeEnabled();
   await saveBtn.click();
 
-  await expect(page).toHaveURL(/\/dashboards\/\d+$/, { timeout: 15_000 });
+  await expect(page).toHaveURL(/\/dashboards\/[0-9a-f-]+$/, { timeout: 15_000 });
   await expect(
     page.getByRole("heading", { name: "E2E created" }),
   ).toBeVisible({ timeout: 15_000 });

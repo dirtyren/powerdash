@@ -1,8 +1,8 @@
 // tests/e2e/dashboard-widget-types.spec.ts
 // Exercises the P2.3 palette: add multiple widget kinds (including
 // duplicates of the same kind), rename one inline, save, and assert
-// redirect. The stateful mock-api allocates a fresh sequential id on
-// create, so the redirect lands on /dashboards/<n> where n >= 2.
+// redirect. Postgres generates a v4 UUID on create, so the redirect
+// lands on /dashboards/<uuid>.
 
 import { test, expect } from "@playwright/test";
 
@@ -28,5 +28,5 @@ test("palette adds multiple kinds; inline rename works; duplicates allowed", asy
   await firstTitleInput.fill("My renamed bar");
 
   await page.getByRole("button", { name: /^Save/ }).click();
-  await expect(page).toHaveURL(/\/dashboards\/\d+$/, { timeout: 15_000 });
+  await expect(page).toHaveURL(/\/dashboards\/[0-9a-f-]+$/, { timeout: 15_000 });
 });

@@ -1,17 +1,49 @@
 // NOTE: Asserts the save round-trip succeeds (no error banner, URL returns
-// to /dashboards/1) on the seeded dashboard.
+// to /dashboards/<uuid>) on the seeded dashboard. Postgres assigns a v4
+// UUID to the seed row, so we look it up via the API before driving the UI.
 
 import { test, expect } from "@playwright/test";
 
-test("edits a dashboard: drag a canvas widget, save, round-trip without error", async ({ page }) => {
-  await page.goto("/dashboards/1");
+test.afterEach(async ({ request }) => {
+  // Restore the seeded dashboard's name + widget layout so sibling specs
+  // (e.g. smoke) that assert on "Infrastructure Overview" remain stable.
+  // Only targets the dashboard this test renamed to "Renamed by E2E" —
+  // skip if absent to avoid mutating unrelated rows on failed runs.
+  try {
+    const list = await request.get("/api/dashboards");
+    const rows = (await list.json()) as Array<{ id: string; name: string }>;
+    const renamed = rows.find((r) => r.name === "Renamed by E2E");
+    if (!renamed) return;
+    await request.put(`/api/dashboards/${renamed.id}`, {
+      data: {
+        name: "Infrastructure Overview",
+        widgets: [
+          { id: "w-cpu-kpi",     kind: "kpi",   title: "CPU %",          x:  20, y:  20, w:  260, h: 160 },
+          { id: "w-cpu-line",    kind: "line",  title: "CPU over time",  x: 300, y:  20, w:  720, h: 320 },
+          { id: "w-hosts-table", kind: "table", title: "Hosts",          x:  20, y: 360, w: 1000, h: 320 },
+        ],
+      },
+    });
+  } catch {
+    // Best-effort cleanup; don't fail the test on restore errors.
+  }
+});
+
+test("edits a dashboard: drag a canvas widget, save, round-trip without error", async ({ page, request }) => {
+  const list = await request.get("/api/dashboards");
+  const rows = (await list.json()) as Array<{ id: string; name: string }>;
+  const seed = rows.find((r) => r.name === "Infrastructure Overview");
+  if (!seed) throw new Error("Seed dashboard 'Infrastructure Overview' not found");
+  const id = seed.id;
+
+  await page.goto(`/dashboards/${id}`);
   await expect(
     page.getByRole("heading", { name: "Infrastructure Overview" }),
   ).toBeVisible({ timeout: 15_000 });
 
   // Enter edit mode
   await page.getByRole("link", { name: "Edit" }).click();
-  await expect(page).toHaveURL(/\/dashboards\/1\/edit$/);
+  await expect(page).toHaveURL(new RegExp(`/dashboards/${id}/edit$`));
   await expect(page.getByText(/no changes/)).toBeVisible({ timeout: 15_000 });
 
   // Rename the dashboard inline via the toolbar's name input. The input is
@@ -61,9 +93,14 @@ test("edits a dashboard: drag a canvas widget, save, round-trip without error", 
   await exprInput.fill("scrape_duration_seconds");
   await page.getByRole("button", { name: "Apply" }).click();
 
-  // The widget's "No query" placeholder should not appear (SeriesChart now
-  // has a non-empty expr so it either renders or shows loading/no samples).
-  await expect(page.getByText(/No query —/)).not.toBeVisible();
+  // The widget's "No query" placeholder should not appear on the line tile
+  // (scoped — the KPI and Hosts Table still lack queries at this point and
+  // their own placeholders remain visible).
+  await expect(
+    page
+      .locator('[data-widget-id="w-cpu-line"]')
+      .getByText(/No query —/),
+  ).not.toBeVisible();
 
   // Deselect and then select the KPI widget; attach a PromQL query to it too.
   await page.getByRole("button", { name: "← Widgets" }).click();
@@ -75,12 +112,16 @@ test("edits a dashboard: drag a canvas widget, save, round-trip without error", 
   await page.getByRole("button", { name: "Apply" }).click();
 
   // KPI renders either a number or "No samples." — either proves the PromKpi
-  // branch took over. The "No query" placeholder must not be visible.
-  await expect(page.getByText(/No query —/)).not.toBeVisible();
+  // branch took over. The placeholder should be gone from the KPI tile.
+  await expect(
+    page
+      .locator('[data-widget-id="w-cpu-kpi"]')
+      .getByText(/No query —/),
+  ).not.toBeVisible({ timeout: 15_000 });
 
   await page.getByRole("button", { name: /^Save/ }).click();
 
-  await expect(page).toHaveURL(/\/dashboards\/1$/, { timeout: 15_000 });
+  await expect(page).toHaveURL(new RegExp(`/dashboards/${id}$`), { timeout: 15_000 });
   // Postgres persists the rename, so the post-save heading reflects the
   // new name rather than the seeded one.
   await expect(
