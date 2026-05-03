@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<response>
-  <widget kind="kpi">
-    <value>42.3</value>
-    <unit>%</unit>
-    <delta>-1.4</delta>
-  </widget>
-</response>

@@ -6,39 +6,27 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
       target: dev
-    container_name: dashboard-html-web
+    container_name: powerdash-web
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=development
-      - SEAGULL_BASE_URL=http://mock-api:8080
-      - DATABASE_URL=postgres://opmon:opmon@postgres:5432/opmon
+      - DATABASE_URL=postgres://powerdash:powerdash@postgres:5432/powerdash
       - PROMETHEUS_BASE_URL=http://prometheus:9090
     volumes:
       - ..:/app
       - /app/node_modules
       - /app/.next
     depends_on:
-      mock-api:
-        condition: service_started
       postgres:
         condition: service_healthy
       prometheus:
         condition: service_started
     restart: unless-stopped
 
-  mock-api:
-    build:
-      context: ./mock-api
-      dockerfile: Dockerfile
-    container_name: dashboard-html-mock-api
-    ports:
-      - "8080:8080"
-    restart: unless-stopped
-
   prometheus:
     image: prom/prometheus:v2.54.1
-    container_name: dashboard-html-prometheus
+    container_name: powerdash-prometheus
     ports:
       - "9090:9090"
     volumes:
@@ -50,21 +38,20 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: dashboard-html-postgres
+    container_name: powerdash-postgres
     environment:
-      - POSTGRES_USER=opmon
-      - POSTGRES_PASSWORD=opmon
-      - POSTGRES_DB=opmon
+      - POSTGRES_USER=powerdash
+      - POSTGRES_PASSWORD=powerdash
+      - POSTGRES_DB=powerdash
     ports:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./postgres/seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U opmon -d opmon"]
+      test: ["CMD-SHELL", "pg_isready -U powerdash"]
       interval: 5s
       timeout: 3s
-      retries: 10
+      retries: 5
     restart: unless-stopped
 
 volumes:
