@@ -14,6 +14,7 @@ import {
   useLabelNames,
   useLabelValues,
 } from "@/hooks/usePromMetadata";
+import { MetricPicker } from "@/components/widgets/MetricPicker";
 
 interface Props {
   state: BuilderState;
@@ -54,20 +55,12 @@ function MetricSection({ state, onChange }: Props) {
       >
         Metric
       </label>
-      <select
-        id="builder-metric"
-        aria-label="Metric"
+      <MetricPicker
         value={state.metric}
-        onChange={(e) => onChange({ ...state, metric: e.target.value })}
-        className="w-full rounded border border-border bg-background px-2 py-1 text-xs"
-      >
-        <option value="">(pick metric)</option>
-        {metrics.map((m) => (
-          <option key={m} value={m}>
-            {m}
-          </option>
-        ))}
-      </select>
+        onChange={(next) => onChange({ ...state, metric: next })}
+        metrics={metrics}
+        placeholder="Select a metric…"
+      />
     </section>
   );
 }

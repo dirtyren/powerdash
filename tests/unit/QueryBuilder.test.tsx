@@ -37,20 +37,25 @@ describe("QueryBuilder", () => {
 
   it("renders the metric dropdown populated from the hook", async () => {
     render(wrapper(<QueryBuilder state={EMPTY_BUILDER_STATE} onChange={() => {}} />));
-    const metric = await screen.findByRole<HTMLSelectElement>("combobox", {
-      name: "Metric",
-    });
-    await waitFor(() => expect(metric.options.length).toBeGreaterThan(1));
-    expect([...metric.options].map((o) => o.value)).toContain("up");
-    expect([...metric.options].map((o) => o.value)).toContain("http_requests_total");
+    const metric = await screen.findByRole<HTMLInputElement>("combobox");
+    fireEvent.focus(metric);
+    await waitFor(() =>
+      expect(screen.getAllByRole("option").length).toBeGreaterThan(1),
+    );
+    const optionNames = screen.getAllByRole("option").map((o) => o.textContent);
+    expect(optionNames).toContain("up");
+    expect(optionNames).toContain("http_requests_total");
   });
 
   it("selecting a metric fires onChange with state.metric set", async () => {
     const onChange = vi.fn();
     render(wrapper(<QueryBuilder state={EMPTY_BUILDER_STATE} onChange={onChange} />));
-    const metric = await screen.findByRole("combobox", { name: "Metric" });
-    await waitFor(() => expect((metric as HTMLSelectElement).options.length).toBeGreaterThan(1));
-    fireEvent.change(metric, { target: { value: "up" } });
+    const metric = await screen.findByRole("combobox");
+    fireEvent.focus(metric);
+    await waitFor(() =>
+      expect(screen.getAllByRole("option").length).toBeGreaterThan(1),
+    );
+    fireEvent.mouseDown(screen.getByRole("option", { name: "up" }));
     expect(onChange).toHaveBeenCalledWith({ ...EMPTY_BUILDER_STATE, metric: "up" });
   });
 
