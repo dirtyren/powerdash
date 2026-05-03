@@ -1,8 +1,8 @@
 // tests/e2e/dashboard-widget-types.spec.ts
 // Exercises the P2.3 palette: add multiple widget kinds (including
 // duplicates of the same kind), rename one inline, save, and assert
-// redirect. WireMock returns {output: 1} for any save so the redirect
-// lands on /dashboards/1.
+// redirect. The stateful mock-api allocates a fresh sequential id on
+// create, so the redirect lands on /dashboards/<n> where n >= 2.
 
 import { test, expect } from "@playwright/test";
 
@@ -28,5 +28,5 @@ test("palette adds multiple kinds; inline rename works; duplicates allowed", asy
   await firstTitleInput.fill("My renamed bar");
 
   await page.getByRole("button", { name: /^Save/ }).click();
-  await expect(page).toHaveURL(/\/dashboards\/1$/, { timeout: 15_000 });
+  await expect(page).toHaveURL(/\/dashboards\/\d+$/, { timeout: 15_000 });
 });
