@@ -1,7 +1,6 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import type {
   BuilderState,
   LabelFilter,
@@ -10,8 +9,11 @@ import type {
   GroupKind,
 } from "@/widgets/promql/builder-state";
 import { buildExpression } from "@/widgets/promql/build-expression";
-import { useLabelNames, useLabelValues } from "@/hooks/usePromMetadata";
-import { createPromClient } from "@/widgets/promql/prom-client";
+import {
+  useMetricNames,
+  useLabelNames,
+  useLabelValues,
+} from "@/hooks/usePromMetadata";
 
 interface Props {
   state: BuilderState;
@@ -29,15 +31,11 @@ const AGG_FNS: readonly AggregationFn[] = [
   "stdvar",
 ];
 
-const STALE_MS = 5 * 60 * 1000;
-
 export function QueryBuilder({ state, onChange }: Props) {
   const preview = useMemo(() => buildExpression(state), [state]);
   return (
     <div className="flex flex-col gap-4">
-      <Suspense fallback={null}>
-        <MetricSection state={state} onChange={onChange} />
-      </Suspense>
+      <MetricSection state={state} onChange={onChange} />
       <FiltersSection state={state} onChange={onChange} />
       <RateSection state={state} onChange={onChange} />
       <AggregationSection state={state} onChange={onChange} />
@@ -47,11 +45,7 @@ export function QueryBuilder({ state, onChange }: Props) {
 }
 
 function MetricSection({ state, onChange }: Props) {
-  const { data: metrics } = useSuspenseQuery({
-    queryKey: ["promql-metric-names"],
-    queryFn: () => createPromClient().metricNames(),
-    staleTime: STALE_MS,
-  });
+  const { data: metrics = [] } = useMetricNames();
   return (
     <section>
       <label

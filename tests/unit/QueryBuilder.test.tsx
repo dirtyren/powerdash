@@ -49,6 +49,7 @@ describe("QueryBuilder", () => {
     const onChange = vi.fn();
     render(wrapper(<QueryBuilder state={EMPTY_BUILDER_STATE} onChange={onChange} />));
     const metric = await screen.findByRole("combobox", { name: "Metric" });
+    await waitFor(() => expect((metric as HTMLSelectElement).options.length).toBeGreaterThan(1));
     fireEvent.change(metric, { target: { value: "up" } });
     expect(onChange).toHaveBeenCalledWith({ ...EMPTY_BUILDER_STATE, metric: "up" });
   });
