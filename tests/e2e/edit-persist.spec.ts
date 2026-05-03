@@ -4,8 +4,9 @@ test("widget edits persist across refresh", async ({ page, request }) => {
   // Resolve the seed dashboard's UUID via the API (Postgres-assigned).
   const list = await request.get("/api/dashboards");
   const rows = (await list.json()) as Array<{ id: string; name: string }>;
-  if (rows.length === 0) throw new Error("No dashboards seeded");
-  const id = rows[0].id;
+  const first = rows[0];
+  if (!first) throw new Error("No dashboards seeded");
+  const id = first.id;
 
   await page.goto(`/dashboards/${id}/edit`);
 
