@@ -6,7 +6,7 @@ import type { FastifyInstance } from "fastify";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const FILES_DIR = resolve(__dirname, "..", "..", "__files");
 
-const SAFE_ID = /^[A-Za-z0-9_\-]+$/;
+const SAFE_ID = /^[A-Za-z0-9_-]+$/;
 
 export function registerWidgetRoutes(app: FastifyInstance): void {
   app.get<{ Params: { id: string } }>(

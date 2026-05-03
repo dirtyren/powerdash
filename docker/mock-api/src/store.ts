@@ -7,7 +7,7 @@ let nextId = 2;
 export function reset(): void {
   dashboards.clear();
   for (const d of SEED_DASHBOARDS) {
-    dashboards.set(d.id, structuredClone(d) as StoredDashboard);
+    dashboards.set(d.id, structuredClone(d));
   }
   const maxSeedId = SEED_DASHBOARDS.reduce(
     (max, d) => Math.max(max, Number(d.id) || 0),

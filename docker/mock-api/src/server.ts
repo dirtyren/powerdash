@@ -7,7 +7,7 @@ import { registerWidgetRoutes } from "./routes/widgets";
 export async function buildServer(): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
   await app.register(formbody);
-  app.get("/health", async () => ({ ok: true }));
+  app.get("/health", () => ({ ok: true }));
   registerDashboardRoutes(app);
   registerSaveRoutes(app);
   registerWidgetRoutes(app);
