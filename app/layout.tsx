@@ -3,8 +3,8 @@ import { Providers } from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "OpMon Davinci",
-  description: "OpMon dashboards",
+  title: "PowerDash",
+  description: "Prometheus dashboards",
 };
 
 export const viewport: Viewport = {

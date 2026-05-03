@@ -19,7 +19,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           className="border-border hover:bg-muted h-12 w-full border-b text-sm"
           aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
         >
-          {sidebarOpen ? "‹ Davinci" : "≡"}
+          {sidebarOpen ? "PowerDash" : "≡"}
         </button>
         <nav className="text-muted-foreground p-4 text-sm">{sidebarOpen ? "Dashboards" : null}</nav>
       </aside>

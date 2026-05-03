@@ -90,10 +90,9 @@ export default function DashboardEditPage({
       { widgets: snapshot, name: editName },
       {
         onSuccess: (saved) => {
-          // WireMock/Seagull may not echo the `query` field back from the
-          // static fixture; reattach queries from the POSTed snapshot so the
-          // in-session view remains consistent. Harmless no-op against a
-          // backend that does persist the field.
+          // Reattach queries from the POSTed snapshot so the in-session view
+          // remains consistent even if the backend response omits the `query`
+          // field. Harmless no-op against a backend that does persist it.
           const byId = new Map(snapshot.map((w) => [w.id, w]));
           const mergedWidgets = saved.widgets.map((w) => {
             const source = byId.get(w.id);

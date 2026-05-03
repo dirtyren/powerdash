@@ -1,59 +1,44 @@
-# dashboard-html
+# PowerDash
 
-Migration workspace for the OpMon **Davinci** main dashboard: ActionScript 3.5 / Flex → Next.js 15 + React 19 + TypeScript.
+A Prometheus-backed dashboard tool. Grafana-like UX, opinionated defaults, built with Next.js 15 + React 19 + TypeScript.
 
-**Status:** Feasibility study complete. Implementation not started.
-
-## Layout
-
-- `docs/superpowers/specs/2026-04-29-davinci-migration-design.md` — feasibility study, architecture, roadmap, estimate, risks, build-vs-buy.
-- `docs/legacy/` — OpMon Dashboards Integration API documentation migrated from the legacy repo.
-- `docker/` — dev/evaluation-only Compose stack (`web` + `mock-api` + `postgres`).
-
-## Scope
-
-Main dashboard only (`flex/src/main.mxml` in the legacy repo). Viewer, opmap, scatmap, cmdbmap, and mobile remain on Flash for this phase.
-
-## Local development
-
-### Prerequisites
-
-- Node 20 LTS
-- pnpm 9 (`corepack enable && corepack prepare pnpm@9.12.0 --activate`)
-- Docker + Docker Compose
-
-### First-time setup
+## Quick start
 
 ```bash
-cp .env.example .env.local
+docker compose -f docker/docker-compose.yml up -d --build
+```
+
+Open http://localhost:3000. The seed dashboard ("Infrastructure Overview") loads automatically.
+
+## Stack
+
+- Next.js 15 (App Router), React 19, TypeScript 5.6 strict
+- TanStack Query v5 for server state
+- Zod 3 for validation
+- ECharts 5 for charts, tree-shaken per-widget
+- CodeMirror 6 + `@prometheus-io/codemirror-promql` for the PromQL editor
+- Drizzle ORM + Postgres 16 for persistence
+- Vitest 2 + Playwright 1 for tests
+
+## Development
+
+```bash
 pnpm install
+docker compose -f docker/docker-compose.yml up -d postgres prometheus
+export DATABASE_URL="postgres://powerdash:powerdash@localhost:5432/powerdash"
+pnpm db:migrate
+pnpm db:seed
+pnpm dev
 ```
 
-### Run everything in Docker
+Run tests:
 
 ```bash
-docker compose -f docker/docker-compose.yml up --build
+pnpm vitest run        # unit
+pnpm playwright test   # E2E (needs docker stack up)
 ```
 
-- App: http://localhost:3000
-- Mock API (WireMock admin): http://localhost:8080/\_\_admin
-- Postgres: localhost:5432 (opmon / opmon)
+## Environment
 
-### Run the Next app on the host, mock-api + postgres in Docker
-
-```bash
-docker compose -f docker/docker-compose.yml up -d mock-api postgres
-SEAGULL_BASE_URL=http://localhost:8080 pnpm dev
-```
-
-### Tests
-
-```bash
-pnpm test                 # unit
-pnpm e2e                  # playwright (needs mock-api running)
-pnpm typecheck && pnpm lint && pnpm format:check
-```
-
-## Pointing at a real seagull backend
-
-Set `SEAGULL_BASE_URL` to the PHP host (e.g. `https://opmon.example.com`) and make sure your browser has a valid seagull session cookie (log into OpMon in the same browser). The session cookie is forwarded server-side by the Route Handlers.
+- `DATABASE_URL` — Postgres connection string.
+- `PROMETHEUS_BASE_URL` — Prometheus HTTP API base (typically `http://prometheus:9090` in docker, `http://localhost:9090` on host).

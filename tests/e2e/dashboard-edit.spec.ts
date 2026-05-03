@@ -1,38 +1,7 @@
 // NOTE: Asserts the save round-trip succeeds (no error banner, URL returns
-// to /dashboards/1) on the seeded dashboard. The stateful mock-api now
-// persists the rename/layout changes for the session, so an afterEach
-// restores the seeded name to keep sibling specs ordering-independent.
+// to /dashboards/1) on the seeded dashboard.
 
 import { test, expect } from "@playwright/test";
-
-test.afterEach(async ({ request }) => {
-  // Restore seeded dashboard 1 name + widget layout so subsequent specs
-  // (e.g. smoke) that assert on "Infrastructure Overview" stay stable.
-  // Uses the same legacy savedashboard endpoint the app calls, talking to
-  // the mock-api directly on :8080.
-  const restorePayload = {
-    id: "1",
-    name: "Infrastructure Overview",
-    username: "opuser",
-    width: 1920,
-    height: 1080,
-    widgets: [
-      { id: "w-cpu-kpi",     kind: "kpi",   title: "CPU %",          x: 20,  y: 20,  w: 260,  h: 160 },
-      { id: "w-cpu-line",    kind: "line",  title: "CPU over time",  x: 300, y: 20,  w: 720,  h: 320 },
-      { id: "w-hosts-table", kind: "table", title: "Hosts",          x: 20,  y: 360, w: 1000, h: 320 },
-    ],
-  };
-  try {
-    await request.post(
-      "http://localhost:8080/opmon/seagull/www/index.php/wsconnector/action/savedashboard",
-      {
-        form: { json: JSON.stringify(restorePayload) },
-      },
-    );
-  } catch {
-    // Best-effort cleanup; don't fail the test on restore errors.
-  }
-});
 
 test("edits a dashboard: drag a canvas widget, save, round-trip without error", async ({ page }) => {
   await page.goto("/dashboards/1");
@@ -112,8 +81,8 @@ test("edits a dashboard: drag a canvas widget, save, round-trip without error", 
   await page.getByRole("button", { name: /^Save/ }).click();
 
   await expect(page).toHaveURL(/\/dashboards\/1$/, { timeout: 15_000 });
-  // Stateful mock-api now persists the rename, so the post-save heading
-  // reflects the new name rather than the seeded one.
+  // Postgres persists the rename, so the post-save heading reflects the
+  // new name rather than the seeded one.
   await expect(
     page.getByRole("heading", { name: "Renamed by E2E" }),
   ).toBeVisible();
