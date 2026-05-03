@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { QueryEditor } from "@/components/widgets/QueryEditor";
 import type { WidgetRef } from "@/server/schemas/widget";
+import type { BuilderState } from "@/widgets/promql/builder-state";
 
 vi.mock("@/components/widgets/PromQLEditor", () => ({
   PromQLEditor: ({
@@ -16,6 +17,22 @@ vi.mock("@/components/widgets/PromQLEditor", () => ({
       aria-label="PromQL expression"
       value={value}
       onChange={(e) => onChange(e.target.value)}
+    />
+  ),
+}));
+
+vi.mock("@/components/widgets/QueryBuilder", () => ({
+  QueryBuilder: ({
+    state,
+    onChange,
+  }: {
+    state: BuilderState;
+    onChange: (next: BuilderState) => void;
+  }) => (
+    <input
+      aria-label="builder-metric-mock"
+      value={state.metric}
+      onChange={(e) => onChange({ ...state, metric: e.target.value })}
     />
   ),
 }));
@@ -121,6 +138,55 @@ describe("QueryEditor", () => {
       target: { value: "-5" },
     });
     expect(screen.getByText(/Step must be a positive number/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Apply" })).toBeDisabled();
+  });
+
+  it("starts in Code mode with the expr editor visible", () => {
+    render(
+      <QueryEditor widget={baseWidget} onApply={() => {}} onBack={() => {}} />,
+    );
+    expect(screen.getByRole("tab", { name: "Code" })).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
+    expect(screen.getByRole("textbox", { name: "PromQL expression" })).toBeTruthy();
+    expect(
+      screen.queryByRole("textbox", { name: "builder-metric-mock" }),
+    ).toBeNull();
+  });
+
+  it("clicking Builder tab swaps to the builder form", () => {
+    render(
+      <QueryEditor widget={baseWidget} onApply={() => {}} onBack={() => {}} />,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "Builder" }));
+    expect(
+      screen.getByRole("textbox", { name: "builder-metric-mock" }),
+    ).toBeTruthy();
+    expect(
+      screen.queryByRole("textbox", { name: "PromQL expression" }),
+    ).toBeNull();
+  });
+
+  it("Apply in Builder mode sends the builder's generated expression", () => {
+    const onApply = vi.fn();
+    render(
+      <QueryEditor widget={baseWidget} onApply={onApply} onBack={() => {}} />,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "Builder" }));
+    fireEvent.change(
+      screen.getByRole("textbox", { name: "builder-metric-mock" }),
+      { target: { value: "up" } },
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+    expect(onApply).toHaveBeenCalledWith({ expr: "up" });
+  });
+
+  it("Apply button is disabled when builder has no metric picked", () => {
+    render(
+      <QueryEditor widget={baseWidget} onApply={() => {}} onBack={() => {}} />,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "Builder" }));
     expect(screen.getByRole("button", { name: "Apply" })).toBeDisabled();
   });
 });
