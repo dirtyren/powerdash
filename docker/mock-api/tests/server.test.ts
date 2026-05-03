@@ -169,3 +169,123 @@ describe("dashboard routes", () => {
     await app.close();
   });
 });
+
+describe("save route", () => {
+  beforeEach(() => reset());
+
+  const SAVE_URL =
+    "/opmon/seagull/www/index.php/wsconnector/action/savedashboard";
+
+  function saveBody(envelope: Record<string, unknown>): string {
+    const params = new URLSearchParams();
+    params.set("json", JSON.stringify(envelope));
+    return params.toString();
+  }
+
+  it("POST with existing id updates the dashboard", async () => {
+    const app = await buildServer();
+    const res = await app.inject({
+      method: "POST",
+      url: SAVE_URL,
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      payload: saveBody({
+        id: "1",
+        name: "Renamed",
+        username: "opuser",
+        width: "1920",
+        height: "1080",
+        widgets: [],
+      }),
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ output: 1 });
+    expect(get("1")?.name).toBe("Renamed");
+    await app.close();
+  });
+
+  it("POST without id creates a new dashboard and returns its id", async () => {
+    const app = await buildServer();
+    const res = await app.inject({
+      method: "POST",
+      url: SAVE_URL,
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      payload: saveBody({
+        name: "New One",
+        username: "opuser",
+        width: "1920",
+        height: "1080",
+        widgets: [],
+      }),
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ output: 2 });
+    expect(get("2")?.name).toBe("New One");
+    await app.close();
+  });
+
+  it("POST with unknown id returns {output: -1}", async () => {
+    const app = await buildServer();
+    const res = await app.inject({
+      method: "POST",
+      url: SAVE_URL,
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      payload: saveBody({ id: "999", name: "x", username: "u" }),
+    });
+    expect(res.json()).toEqual({ output: -1 });
+    expect(get("999")).toBeUndefined();
+    await app.close();
+  });
+
+  it("POST with malformed json= body returns {output: -1}", async () => {
+    const app = await buildServer();
+    const params = new URLSearchParams();
+    params.set("json", "{not-json");
+    const res = await app.inject({
+      method: "POST",
+      url: SAVE_URL,
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      payload: params.toString(),
+    });
+    expect(res.json()).toEqual({ output: -1 });
+    await app.close();
+  });
+
+  it("POST with missing name returns {output: -1}", async () => {
+    const app = await buildServer();
+    const res = await app.inject({
+      method: "POST",
+      url: SAVE_URL,
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      payload: saveBody({ username: "u" }),
+    });
+    expect(res.json()).toEqual({ output: -1 });
+    await app.close();
+  });
+
+  it("round-trip: save widgets with query then GET returns them", async () => {
+    const app = await buildServer();
+    await app.inject({
+      method: "POST",
+      url: SAVE_URL,
+      headers: { "content-type": "application/x-www-form-urlencoded" },
+      payload: saveBody({
+        id: "1",
+        name: "Infrastructure Overview",
+        username: "opuser",
+        width: "1920",
+        height: "1080",
+        widgets: [
+          {
+            id: "w-cpu-line", kind: "line", title: "CPU",
+            x: 0, y: 0, w: 100, h: 100,
+            query: { expr: "up", step: 30 },
+          },
+        ],
+      }),
+    });
+    const res = await app.inject({ method: "GET", url: "/dashboards/1.xml" });
+    expect(res.body).toContain("<expr>up</expr>");
+    expect(res.body).toContain("<step>30</step>");
+    await app.close();
+  });
+});
