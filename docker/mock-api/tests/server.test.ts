@@ -130,3 +130,42 @@ describe("xml serialization", () => {
     expect(xml).toContain("<expr>up{job=&quot;api&quot;}</expr>");
   });
 });
+
+describe("dashboard routes", () => {
+  beforeEach(() => reset());
+
+  it("GET /dashboards/list.xml returns the seed list", async () => {
+    const app = await buildServer();
+    const res = await app.inject({ method: "GET", url: "/dashboards/list.xml" });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers["content-type"]).toMatch(/application\/xml/);
+    expect(res.body).toContain("<name>Infrastructure Overview</name>");
+    expect(res.body).toContain("<id>1</id>");
+    await app.close();
+  });
+
+  it("GET /dashboards/1.xml returns the full seed dashboard", async () => {
+    const app = await buildServer();
+    const res = await app.inject({ method: "GET", url: "/dashboards/1.xml" });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toContain("<name>Infrastructure Overview</name>");
+    expect(res.body).toContain("<widget>");
+    expect(res.body).toContain("<id>w-cpu-kpi</id>");
+    await app.close();
+  });
+
+  it("GET /dashboards/999.xml returns 404", async () => {
+    const app = await buildServer();
+    const res = await app.inject({ method: "GET", url: "/dashboards/999.xml" });
+    expect(res.statusCode).toBe(404);
+    await app.close();
+  });
+
+  it("list reflects newly added dashboards", async () => {
+    set("7", { id: "7", name: "Added", owner: "u", width: 100, height: 100, widgets: [] });
+    const app = await buildServer();
+    const res = await app.inject({ method: "GET", url: "/dashboards/list.xml" });
+    expect(res.body).toContain("<name>Added</name>");
+    await app.close();
+  });
+});

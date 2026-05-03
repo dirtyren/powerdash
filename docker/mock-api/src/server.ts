@@ -1,10 +1,12 @@
 import Fastify, { type FastifyInstance } from "fastify";
 import formbody from "@fastify/formbody";
+import { registerDashboardRoutes } from "./routes/dashboards";
 
 export async function buildServer(): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
   await app.register(formbody);
   app.get("/health", async () => ({ ok: true }));
+  registerDashboardRoutes(app);
   return app;
 }
 
