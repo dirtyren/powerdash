@@ -1,9 +1,6 @@
 import type { WidgetAdapter } from "../adapter";
 import { WIDGET_ADAPTERS } from "../adapter-registry";
-import { KpiTile } from "@/components/widgets/KpiTile";
-import type { KpiData } from "@/server/schemas/widget";
-
-export const KPI_SAMPLE: KpiData = { kind: "kpi", value: 42, unit: "%", delta: 3.1 };
+import { PromKpi } from "@/components/widgets/promql/PromKpi";
 
 export const kpiAdapter: WidgetAdapter = {
   kind: "kpi",
@@ -12,8 +9,7 @@ export const kpiAdapter: WidgetAdapter = {
   defaultTitle: "KPI",
   defaultW: 260,
   defaultH: 160,
-  Renderer: KpiTile,
-  sampleData: KPI_SAMPLE,
+  Renderer: PromKpi,
 };
 
 WIDGET_ADAPTERS.kpi = kpiAdapter;

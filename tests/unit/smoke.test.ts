@@ -17,7 +17,6 @@ describe("CreateDashboardSchema", () => {
   it("accepts a draft without id", () => {
     const draft = {
       name: "Draft",
-      owner: "opuser",
       width: 1920,
       height: 1080,
       widgets: [],
@@ -27,9 +26,8 @@ describe("CreateDashboardSchema", () => {
 
   it("rejects a draft that carries an id (id must be omitted, not empty)", () => {
     const invalid = {
-      id: "1",
+      id: "550e8400-e29b-41d4-a716-446655440000",
       name: "Draft",
-      owner: "opuser",
       width: 1920,
       height: 1080,
       widgets: [],
@@ -40,11 +38,10 @@ describe("CreateDashboardSchema", () => {
     expect("id" in parsed).toBe(false);
   });
 
-  it("is the same shape as DashboardSchema minus id", () => {
+  it("is the same shape as DashboardSchema minus id/timestamps", () => {
     const dash = {
-      id: "1",
+      id: "550e8400-e29b-41d4-a716-446655440000",
       name: "X",
-      owner: "y",
       width: 1920,
       height: 1080,
       widgets: [],
@@ -53,7 +50,6 @@ describe("CreateDashboardSchema", () => {
     const draft = CreateDashboardSchema.parse(full);
     expect(draft).toEqual({
       name: full.name,
-      owner: full.owner,
       width: full.width,
       height: full.height,
       widgets: full.widgets,
