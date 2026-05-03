@@ -29,4 +29,30 @@ describe("ModeTabs", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Builder" }));
     expect(onChange).toHaveBeenCalledWith("builder");
   });
+
+  it("renders Builder tab disabled with tooltip when builderDisabled is set", () => {
+    render(
+      <ModeTabs
+        mode="code"
+        onChange={() => {}}
+        builderDisabled={{ reason: "nope" }}
+      />,
+    );
+    const builder = screen.getByRole("tab", { name: "Builder" });
+    expect(builder).toBeDisabled();
+    expect(builder).toHaveAttribute("title", "nope");
+  });
+
+  it("disabled Builder tab does not fire onChange when clicked", () => {
+    const onChange = vi.fn();
+    render(
+      <ModeTabs
+        mode="code"
+        onChange={onChange}
+        builderDisabled={{ reason: "x" }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "Builder" }));
+    expect(onChange).not.toHaveBeenCalled();
+  });
 });
