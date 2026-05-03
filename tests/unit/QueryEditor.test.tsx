@@ -213,7 +213,7 @@ describe("QueryEditor", () => {
     );
     const builder = screen.getByRole("tab", { name: "Builder" });
     expect(builder).toBeDisabled();
-    expect(builder).toHaveAttribute("title");
+    expect(builder).toHaveAttribute("title", expect.stringMatching(/Builder/));
   });
 
   it("Clicking disabled Builder tab does not change mode", () => {

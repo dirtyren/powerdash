@@ -75,6 +75,7 @@ export function QueryEditor({ widget, onApply, onBack }: Props) {
     setMode(next);
   };
 
+  // Defensive: if expr ever becomes unparseable while in Builder mode, snap back to Code.
   useEffect(() => {
     if (mode === "builder" && !canBuilder) setMode("code");
   }, [mode, canBuilder]);
