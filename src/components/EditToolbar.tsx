@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 interface Props {
@@ -22,6 +23,12 @@ export function EditToolbar({
   return (
     <div className="mb-4 flex items-center justify-between border-b border-border pb-4">
       <div className="flex items-baseline gap-3">
+        <Link
+          href="/"
+          className="text-sm text-muted-foreground hover:text-foreground"
+        >
+          ← Dashboards
+        </Link>
         {onTitleChange ? (
           <input
             aria-label="Dashboard name"

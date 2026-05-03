@@ -47,4 +47,18 @@ describe("EditToolbar", () => {
     );
     expect(screen.getByRole("button", { name: /^Save/ })).toBeDisabled();
   });
+
+  it("renders a back link to home", () => {
+    render(
+      <EditToolbar
+        title="Test"
+        isDirty={false}
+        isSaving={false}
+        onSave={() => {}}
+        onCancel={() => {}}
+      />,
+    );
+    const link = screen.getByRole("link", { name: /dashboards/i });
+    expect(link).toHaveAttribute("href", "/");
+  });
 });
