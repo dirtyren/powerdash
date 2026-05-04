@@ -4,6 +4,8 @@ A Prometheus-backed dashboard tool with a canvas-style editor. Drag widgets free
 
 Built with Next.js 15 (App Router), React 19, TypeScript 5.6 strict, Drizzle ORM, and ECharts 5.
 
+![PowerDash editor — canvas with KPI / bar / pie / radar / area / line widgets and the PromQL builder metric picker open](docs/screenshots/editor.png)
+
 ---
 
 ## Features
