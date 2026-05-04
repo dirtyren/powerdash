@@ -2,12 +2,14 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { PromRangeResponse } from "@/server/schemas/prometheus";
+import { useRefreshInterval } from "@/contexts/RefreshIntervalContext";
+import { resolveRefetchInterval } from "@/hooks/resolve-refetch-interval";
 
 export interface QueryRangeOptions {
   start?: number;           // unix seconds
   end?: number;
   step?: number;            // seconds
-  refetchIntervalMs?: number;
+  refetchIntervalMs?: number | null;
 }
 
 async function fetchRange(
@@ -33,10 +35,12 @@ async function fetchRange(
 }
 
 export function useQueryRange(expr: string, opts: QueryRangeOptions = {}) {
+  const ctx = useRefreshInterval();
+  const refetchInterval = resolveRefetchInterval(opts.refetchIntervalMs, ctx);
   return useQuery({
     queryKey: ["promql-range", expr, opts.start, opts.end, opts.step],
     queryFn: () => fetchRange(expr, opts),
-    refetchInterval: opts.refetchIntervalMs ?? 15_000,
+    refetchInterval,
     enabled: expr.trim().length > 0,
   });
 }
