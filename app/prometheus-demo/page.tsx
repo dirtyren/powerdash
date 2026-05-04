@@ -14,7 +14,9 @@ echarts.use([EchartsLineSeries]);
 const DEMO_EXPR = "scrape_duration_seconds";
 
 export default function PrometheusDemoPage() {
-  const { data, isLoading, error } = useQueryRange(DEMO_EXPR);
+  const { data, isLoading, error } = useQueryRange(DEMO_EXPR, {
+    refetchIntervalMs: 15_000,
+  });
 
   const option = useMemo(() => (data ? buildLineOption(data) : null), [data]);
   const empty = data !== undefined && data.data.result.length === 0;
