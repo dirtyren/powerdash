@@ -21,7 +21,9 @@ function toSelectValue(v: RefreshIntervalMs): string {
 }
 
 function fromSelectValue(s: string): RefreshIntervalMs {
-  return s === "off" ? null : Number(s);
+  if (s === "off") return null;
+  const n = Number(s);
+  return Number.isFinite(n) && n > 0 ? n : null;
 }
 
 interface Props {

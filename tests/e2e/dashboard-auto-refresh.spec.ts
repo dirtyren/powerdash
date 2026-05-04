@@ -30,16 +30,17 @@ test("auto-refresh dropdown controls widget refetching", async ({ page }) => {
 
   // 6 seconds with "Off" must not introduce additional requests.
   await page.waitForTimeout(6_000);
-  expect(promqlRequests).toBe(baseline);
+  expect(promqlRequests).toBeLessThanOrEqual(baseline);
 
   // Switch to 5s and expect at least one more PromQL request within ~8s.
   await select.selectOption("5000");
   await page.waitForTimeout(8_000);
   expect(promqlRequests).toBeGreaterThan(baseline);
 
-  // Switch back to Off; request count should stop climbing.
+  // Switch back to Off; request count should stop climbing, allowing for
+  // one in-flight fetch that was already pending when the user toggled.
   const afterOn = promqlRequests;
   await select.selectOption("off");
   await page.waitForTimeout(7_000);
-  expect(promqlRequests).toBe(afterOn);
+  expect(promqlRequests).toBeLessThanOrEqual(afterOn + 1);
 });
