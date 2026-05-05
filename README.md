@@ -30,7 +30,7 @@ Built with Next.js 15 (App Router), React 19, TypeScript 5.6 strict, Drizzle ORM
 ### Persistence
 - **Postgres 16.** One `dashboards` table, widgets stored as JSONB. Managed via Drizzle ORM.
 - **Migrations.** Schema changes are generated (`drizzle-kit`) and applied on container startup.
-- **Auto-seed.** On an empty database, a sample "Infrastructure Overview" dashboard is inserted automatically.
+- **Auto-seed.** On an empty database, a sample "Infrastructure Overview" dashboard is inserted automatically. The seeded CPU KPI widget queries `up`, so it expects Prometheus to be reachable — the full Docker Compose stack provides one.
 - **UUID primary keys.** No sequential ids leaking information; safe for sharing URLs.
 
 ### Navigation

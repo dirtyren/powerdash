@@ -2,10 +2,12 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { PromInstantResponse } from "@/server/schemas/prometheus";
+import { useRefreshInterval } from "@/contexts/RefreshIntervalContext";
+import { resolveRefetchInterval } from "@/hooks/resolve-refetch-interval";
 
 export interface QueryInstantOptions {
   time?: number;
-  refetchIntervalMs?: number;
+  refetchIntervalMs?: number | null;
 }
 
 async function fetchInstant(
@@ -26,10 +28,12 @@ async function fetchInstant(
 }
 
 export function useQueryInstant(expr: string, opts: QueryInstantOptions = {}) {
+  const ctx = useRefreshInterval();
+  const refetchInterval = resolveRefetchInterval(opts.refetchIntervalMs, ctx);
   return useQuery({
     queryKey: ["promql-instant", expr, opts.time],
     queryFn: () => fetchInstant(expr, opts),
-    refetchInterval: opts.refetchIntervalMs ?? 15_000,
+    refetchInterval,
     enabled: expr.trim().length > 0,
   });
 }
