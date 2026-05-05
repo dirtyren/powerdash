@@ -30,6 +30,9 @@ async function main() {
   });
   await pool.end();
   console.log("seeded 1 dashboard");
+  console.log(
+    "note: the CPU KPI widget queries `up` — Prometheus must be reachable, otherwise the widget renders an error state.",
+  );
 }
 
 main().catch((err) => {
